@@ -28,8 +28,8 @@ Requires Docker Desktop. The app is bound to localhost only — see `docs/ethics
 | Member | Responsibility |
 |---|---|
 | Alper | Lab setup, PortSwigger write-ups, dashboard |
-| Member 2 | Juice Shop: A01, A05, A07 |
-| Member 3 | Juice Shop: A02, A04, A10 |
-| Member 4 | Juice Shop: A03, A06, A08, A09 + CVSS scoring |
+| Elif | Juice Shop: A01, A05, A07 |
+| Samed | Juice Shop: A02, A04, A10 |
+| Altay | Juice Shop: A03, A06, A08, A09 + CVSS scoring |
 
 See `CONTRIBUTING.md` for the workflow.
