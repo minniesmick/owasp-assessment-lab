@@ -14,6 +14,7 @@ Findings are collected in a structured format and visualized in an assessment da
 | `findings/_TEMPLATE.md` | Finding template — copy this |
 | `evidence/` | Screenshots, named `<finding-id>-<n>.png` |
 | `docs/` | Methodology, OWASP coverage map, ethics |
+| `progress/` | Saved Juice Shop progress per member (`scripts/progress.py`) |
 | `paper/` | IEEE paper (5–7 pages) |
 | `dashboard/` | Assessment dashboard (web UI) |
 
@@ -23,6 +24,18 @@ docker compose up -d
 # open http://127.0.0.1:3000
 ```
 Requires Docker Desktop. The app is bound to localhost only — see `docs/ethics.md`.
+
+## Sharing challenge progress
+Juice Shop resets its database on every restart, so progress is shared as "continue codes" in `progress/`.
+Requires Python 3 (standard library only).
+
+```bash
+python scripts/progress.py save <your-name>   # export your solved challenges → progress/<name>.json, then commit
+python scripts/progress.py status             # team overview per OWASP category (changes nothing)
+python scripts/progress.py load [name ...]    # apply saved progress to your local Juice Shop
+```
+Use `status` to see what the team has covered. Use `load` only if you want those challenges
+marked solved on your own instance — solve your own categories yourself first.
 
 ## Team
 | Member | Responsibility |
