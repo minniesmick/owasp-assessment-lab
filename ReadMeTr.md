@@ -30,6 +30,7 @@ Bulgular ortak bir formatta toplanır ve bir değerlendirme panelinde (dashboard
 | `evidence/` | Ekran görüntüleri, `<bulgu-id>-<n>.png` şeklinde adlandırılır |
 | `progress/` | Üye başına kayıtlı Juice Shop challenge ilerlemesi |
 | `scripts/progress.py` | İlerlemeyi kaydetme / görüntüleme / yükleme |
+| `scripts/validate.py` | Dosya adı, klasör ve zorunlu alanları kontrol eder (GitHub'da da çalışır) |
 | `docs/` | Metodoloji, OWASP kapsam tablosu, etik |
 | `paper/` | IEEE makalesi (5–7 sayfa) |
 | `dashboard/` | Değerlendirme paneli (web arayüzü) |
@@ -50,7 +51,9 @@ docker compose down         # durdur
 2. Önce ilgili PortSwigger konusunu oku, sonra Juice Shop'ta çöz.
 3. İlerlemeni kaydet: `python scripts/progress.py save <isim>`.
 4. Önemli challenge'lar için bulgu yaz: `findings/_TEMPLATE.md`'yi kopyala, doldur, ekran görüntülerini `evidence/`'a koy.
-5. Commit'le ve paylaş. Bulgu `reviewed` olmadan önce başka bir üye tarafından tekrar edilir.
+5. Dosyalarını kontrol et: `python scripts/validate.py` — çıkan her `[HATA]`'yı düzelt.
+6. Commit'le ve push'la. Aynı kontrol GitHub'da otomatik çalışır; kırmızı ❌ bir şeyin yanlış olduğunu gösterir.
+7. Bulgu `reviewed` olmadan önce başka bir üye tarafından tekrar edilir.
 
 Challenge çözmek ≠ bulgu yazmak. Makale `findings/` klasöründen yazılır; her OWASP kategorisi için en az 2–3 bulgu hedeflenir.
 Detaylar: [CONTRIBUTING.md](CONTRIBUTING.md), [docs/methodology.md](docs/methodology.md).

@@ -8,7 +8,7 @@ source: juice-shop            # juice-shop | portswigger
 target: "Juice Shop v__ / POST /rest/user/login"   # for PortSwigger: lab name + URL
 owasp: A05                    # A01..A10 (OWASP Top 10:2025)
 cwe: CWE-89
-severity: high                # critical | high | medium | low | info
+severity: critical            # critical | high | medium | low | info
 cvss_vector: "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N"
 cvss_score: 9.1
 tester: name-surname

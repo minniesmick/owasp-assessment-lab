@@ -30,6 +30,7 @@ Findings are collected in a structured format and visualized in an assessment da
 | `evidence/` | Screenshots, named `<finding-id>-<n>.png` |
 | `progress/` | Saved Juice Shop challenge progress per member |
 | `scripts/progress.py` | Save / view / load challenge progress |
+| `scripts/validate.py` | Checks file names, folders and required fields (also runs on GitHub) |
 | `docs/` | Methodology, OWASP coverage map, ethics |
 | `paper/` | IEEE paper (5–7 pages) |
 | `dashboard/` | Assessment dashboard (web UI) |
@@ -50,7 +51,9 @@ docker compose down         # stop
 2. Read the related PortSwigger topic first, then solve it in Juice Shop.
 3. Save your progress: `python scripts/progress.py save <your-name>`.
 4. For important challenges, write a finding: copy `findings/_TEMPLATE.md`, fill it in, add screenshots to `evidence/`.
-5. Commit and share. Another member reproduces the finding before it is marked `reviewed`.
+5. Check your files: `python scripts/validate.py` — fix every `[HATA]` (error) it prints.
+6. Commit and push. The same check runs automatically on GitHub; a red ❌ means something is wrong.
+7. Another member reproduces the finding before it is marked `reviewed`.
 
 Solving a challenge ≠ writing a finding. The paper is built from `findings/`; aim for at least 2–3 findings per OWASP category.
 Details: [CONTRIBUTING.md](CONTRIBUTING.md), [docs/methodology.md](docs/methodology.md).

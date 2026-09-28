@@ -16,6 +16,10 @@ git push -u origin finding/JS-A01-001
 ```
 Then open a pull request.
 
+## Before pushing
+Run `python scripts/validate.py` and fix every `[HATA]`. The same check runs on GitHub for every push and pull request;
+if it fails, open the red ❌ → *Details* to see which file and field is wrong.
+
 ## Rules
 - One finding = one file = one pull request.
 - IDs: `JS-` (Juice Shop) or `PS-` (PortSwigger) + OWASP category + 3-digit number.
