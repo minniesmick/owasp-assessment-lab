@@ -12,6 +12,7 @@ Usage (Juice Shop must be running for save/load):
 Only Python standard library is used.
 """
 import json
+import os
 import sys
 import urllib.error
 import urllib.request
@@ -19,7 +20,7 @@ from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 
-BASE_URL = "http://127.0.0.1:3000"
+BASE_URL = os.environ.get("JUICE_SHOP_URL", "http://127.0.0.1:3000").rstrip("/")
 PROGRESS_DIR = Path(__file__).resolve().parent.parent / "progress"
 
 # Juice Shop challenge category -> OWASP Top 10:2025.
@@ -83,11 +84,24 @@ def fetch_challenges():
 
 def cmd_save(name):
     out = PROGRESS_DIR / f"{name.lower()}.json"
+    my_previous = set()
     # Juice Shop forgets everything on restart: re-apply my previous save first so saving is cumulative.
     if out.exists():
         previous = json.loads(out.read_text(encoding="utf-8"))
+        my_previous = {s["key"] for s in previous["solved"]}
         request(f"/rest/continue-code/apply/{previous['continue_code']}", method="PUT")
+
+    # After a `load`, the instance also contains teammates' solves. Juice Shop cannot tell who solved
+    # what, so challenges already credited to someone else are not credited to me again.
+    others = set()
+    for f in PROGRESS_DIR.glob("*.json"):
+        if f != out:
+            others |= {s["key"] for s in json.loads(f.read_text(encoding="utf-8"))["solved"]}
+    others -= my_previous
+
     challenges = fetch_challenges()
+    skipped = [c["name"] for c in challenges if c["solved"] and c["key"] in others]
+    challenges = [c for c in challenges if c["key"] not in others]
     code = json.loads(request("/rest/continue-code"))["continueCode"]
     version = json.loads(request("/rest/admin/application-version"))["version"]
     solved = [
@@ -112,6 +126,8 @@ def cmd_save(name):
     }
     out.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"Saved {len(solved)} solved challenges to {out.relative_to(PROGRESS_DIR.parent)}")
+    if skipped:
+        print(f"Not credited to {name} (already in teammates' files): {', '.join(skipped)}")
     print("Commit this file so the team can see it.")
 
 

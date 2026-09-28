@@ -1,41 +1,74 @@
+<div align="center">
+
+[![English](https://img.shields.io/badge/lang-English-blue?style=for-the-badge)](README.md)
+[![Türkçe](https://img.shields.io/badge/dil-T%C3%BCrk%C3%A7e-red?style=for-the-badge)](ReadMeTr.md)
+
 # OWASP Top 10 Security Assessment Lab
 
-Introduction to Cyber Security — Group Project, 2026/2027 (Option 3).
+Introduction to Cyber Security — Group Project, 2026/2027 (Option 3)
+
+</div>
 
 Security assessment of **OWASP Juice Shop** against all **OWASP Top 10:2025** categories,
 supported by deep-dive analyses from **PortSwigger Web Security Academy** labs.
 Findings are collected in a structured format and visualized in an assessment dashboard.
 
+## Contents
+- [Repository layout](#repository-layout)
+- [Setup](#setup)
+- [Workflow](#workflow)
+- [Sharing challenge progress](#sharing-challenge-progress)
+- [Team](#team)
+- [Ethics](#ethics)
+
 ## Repository layout
 | Path | Content |
 |---|---|
-| `findings/juice-shop/` | One Markdown file per Juice Shop finding |
-| `findings/portswigger/` | One Markdown file per PortSwigger lab write-up |
-| `findings/_TEMPLATE.md` | Finding template — copy this |
+| `findings/_TEMPLATE.md` | Finding template — copy this for every finding |
+| `findings/juice-shop/` | One Markdown file per Juice Shop finding (`JS-A05-001-login-sqli.md`) |
+| `findings/portswigger/` | One Markdown file per PortSwigger lab write-up (`PS-A05-001-...md`) |
 | `evidence/` | Screenshots, named `<finding-id>-<n>.png` |
+| `progress/` | Saved Juice Shop challenge progress per member |
+| `scripts/progress.py` | Save / view / load challenge progress |
 | `docs/` | Methodology, OWASP coverage map, ethics |
-| `progress/` | Saved Juice Shop progress per member (`scripts/progress.py`) |
 | `paper/` | IEEE paper (5–7 pages) |
 | `dashboard/` | Assessment dashboard (web UI) |
 
-## Quick start
+## Setup
+Requirements: **Docker Desktop**, **Python 3**, **Burp Suite Community** (for testing).
+
 ```bash
-docker compose up -d
-# open http://127.0.0.1:3000
+docker compose up -d        # start Juice Shop → http://127.0.0.1:3000
+docker compose down         # stop
 ```
-Requires Docker Desktop. The app is bound to localhost only — see `docs/ethics.md`.
+- Version is pinned to **Juice Shop v20.2.0**, so everyone tests the same build.
+- Juice Shop **resets all data on every restart**. Take screenshots as soon as you find something.
+- The Score Board (`/#/score-board`) lists all challenges; filter by category.
+
+## Workflow
+1. Pick a challenge from **your own OWASP categories** (see [Team](#team)).
+2. Read the related PortSwigger topic first, then solve it in Juice Shop.
+3. Save your progress: `python scripts/progress.py save <your-name>`.
+4. For important challenges, write a finding: copy `findings/_TEMPLATE.md`, fill it in, add screenshots to `evidence/`.
+5. Commit and share. Another member reproduces the finding before it is marked `reviewed`.
+
+Solving a challenge ≠ writing a finding. The paper is built from `findings/`; aim for at least 2–3 findings per OWASP category.
+Details: [CONTRIBUTING.md](CONTRIBUTING.md), [docs/methodology.md](docs/methodology.md).
 
 ## Sharing challenge progress
-Juice Shop resets its database on every restart, so progress is shared as "continue codes" in `progress/`.
-Requires Python 3 (standard library only).
+Juice Shop's database cannot be shared (it resets on restart), so progress is shared as Juice Shop
+**continue codes** stored in `progress/<name>.json`.
 
-```bash
-python scripts/progress.py save <your-name>   # add your solved challenges to progress/<name>.json (cumulative), then commit
-python scripts/progress.py status             # team overview per OWASP category (changes nothing)
-python scripts/progress.py load [name ...]    # apply saved progress to your local Juice Shop
-```
-Use `status` to see what the team has covered. Use `load` only if you want those challenges
-marked solved on your own instance — solve your own categories yourself first.
+| Command | What it does |
+|---|---|
+| `python scripts/progress.py save <name>` | Adds your solved challenges to `progress/<name>.json`. Cumulative: earlier saves are kept even after a restart. |
+| `python scripts/progress.py status` | Team overview per OWASP category and member. Changes nothing. |
+| `python scripts/progress.py load [name ...]` | Marks the saved challenges as solved in **your** local Juice Shop (all members if no name). |
+
+Notes:
+- Always save with **your own name**. Challenges already credited to a teammate are not credited to you again.
+- Use `status` to follow the team. Use `load` only for demos — loading a teammate's challenges marks them solved for you.
+- Juice Shop must be running for `save` and `load`. Other URL: set `JUICE_SHOP_URL`.
 
 ## Team
 | Member | Responsibility |
@@ -45,4 +78,8 @@ marked solved on your own instance — solve your own categories yourself first.
 | Samed | Juice Shop: A02, A04, A10 |
 | Altay | Juice Shop: A03, A06, A08, A09 + CVSS scoring |
 
-See `CONTRIBUTING.md` for the workflow.
+Full category mapping: [docs/owasp-mapping.md](docs/owasp-mapping.md).
+
+## Ethics
+All testing is done **only** against Juice Shop running locally (bound to `127.0.0.1`) and PortSwigger Academy labs.
+No other system is tested. See [docs/ethics.md](docs/ethics.md).
