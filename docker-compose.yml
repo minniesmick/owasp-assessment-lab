@@ -1,0 +1,9 @@
+# Local lab only. Ports bound to 127.0.0.1 so the vulnerable app is NOT exposed to the network.
+# Record the exact version in docs/methodology.md (shown in Juice Shop's About / score board).
+services:
+  juice-shop:
+    image: bkimminich/juice-shop:latest
+    container_name: juice-shop
+    ports:
+      - "127.0.0.1:3000:3000"
+    restart: unless-stopped

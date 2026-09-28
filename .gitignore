@@ -1,0 +1,10 @@
+node_modules/
+dist/
+__pycache__/
+.venv/
+.env
+*.log
+.DS_Store
+Thumbs.db
+# Burp project files can contain large/sensitive data
+*.burp
