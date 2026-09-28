@@ -82,6 +82,11 @@ def fetch_challenges():
 
 
 def cmd_save(name):
+    out = PROGRESS_DIR / f"{name.lower()}.json"
+    # Juice Shop forgets everything on restart: re-apply my previous save first so saving is cumulative.
+    if out.exists():
+        previous = json.loads(out.read_text(encoding="utf-8"))
+        request(f"/rest/continue-code/apply/{previous['continue_code']}", method="PUT")
     challenges = fetch_challenges()
     code = json.loads(request("/rest/continue-code"))["continueCode"]
     version = json.loads(request("/rest/admin/application-version"))["version"]
@@ -97,7 +102,6 @@ def cmd_save(name):
         if c["solved"]
     ]
     PROGRESS_DIR.mkdir(exist_ok=True)
-    out = PROGRESS_DIR / f"{name.lower()}.json"
     data = {
         "member": name,
         "saved_at": datetime.now().isoformat(timespec="seconds"),

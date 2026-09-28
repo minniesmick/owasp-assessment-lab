@@ -30,7 +30,7 @@ Juice Shop resets its database on every restart, so progress is shared as "conti
 Requires Python 3 (standard library only).
 
 ```bash
-python scripts/progress.py save <your-name>   # export your solved challenges → progress/<name>.json, then commit
+python scripts/progress.py save <your-name>   # add your solved challenges to progress/<name>.json (cumulative), then commit
 python scripts/progress.py status             # team overview per OWASP category (changes nothing)
 python scripts/progress.py load [name ...]    # apply saved progress to your local Juice Shop
 ```
