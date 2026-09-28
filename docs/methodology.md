@@ -1,7 +1,7 @@
 # Methodology (working notes → paper section)
 
 ## Environment
-- Juice Shop version: _fill in_
+- Juice Shop version: 20.2.0 (Docker image `bkimminich/juice-shop:v20.2.0`)
 - Host OS / Docker version: _fill in per tester_
 - Tools: Burp Suite Community, browser DevTools, OWASP ZAP (optional)
 
