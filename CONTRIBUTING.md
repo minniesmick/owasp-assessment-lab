@@ -30,3 +30,5 @@ if it fails, open the red ❌ → *Details* to see which file and field is wrong
 - Write findings in **English**, in your own words. Do not copy PortSwigger or online solution text.
 - AI assistants may help with wording and formatting, never with inventing results. Rules for AI tools: [AGENTS.md](AGENTS.md).
 - Test only against localhost Juice Shop and PortSwigger labs (`docs/ethics.md`).
+- The dashboard (`dashboard/`) is maintained by Alper so it stays consistent for the presentation; send UI ideas or bugs as an issue.
+  PRs touching `dashboard/` request his review automatically (`.github/CODEOWNERS`).

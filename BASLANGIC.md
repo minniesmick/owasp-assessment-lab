@@ -12,6 +12,8 @@ Takıldığın yerde [Sık karşılaşılan sorunlar](#sık-karşılaşılan-sor
 6. [AI ile çalışma](#6-ai-ile-çalışma)
 7. [Sık karşılaşılan sorunlar](#sık-karşılaşılan-sorunlar)
 
+📊 **Ekip dashboard'u:** https://minniesmick.github.io/owasp-assessment-lab/ — kim ne yaptı, hangi kategoriler eksik, tek bakışta. Ayrıntılar: [Dashboard](#-dashboard).
+
 ---
 
 ## 1. Önce birkaç kelime (sözlük)
@@ -171,6 +173,34 @@ yazım stili ve yasaklar orada; AI bunu okuyunca doğru formatta yazar.
 
 ---
 
+## 📊 Dashboard
+
+**https://minniesmick.github.io/owasp-assessment-lab/**
+
+Projenin canlı özeti. Her `main` güncellemesinden (birleşen PR) yaklaşık 1–2 dakika sonra kendini yeniler, kimsenin bir şey yapmasına gerek yok.
+
+| Ekran | Ne işe yarar |
+|---|---|
+| **Team** | Herkesin kendi kategorilerindeki ilerlemesi, bulguları, verdiği review'lar |
+| **Coverage** | 10 OWASP kategorisinin hangisi başladı, hangisi belgelendi, hangisi boş |
+| **Findings** | Tüm bulgular, risk sırasına göre; tıklayınca bulgunun tamamı ve ekran görüntüleri |
+| **Risk** | Bulguların CVSS'e göre dağılımı |
+| **Activity** | Kim ne zaman ne yaptı: çözülen challenge'lar, eklenen bulgular, review'lar |
+
+**Neden önemli:**
+- Haftalık toplantılarda "kim nerede" sorusunun cevabı burası; WhatsApp'ta sormaya gerek kalmaz.
+- **Final sunumunda çalışmalarımızı, bulguları ve ekran görüntülerini buradan göstereceğiz.** Yazdığın bulgu ve eklediğin
+  görüntüler hocanın göreceği ekranda aynen görünecek — başlığı net, adımları anlaşılır, görüntüleri kırpılmış ve okunaklı olsun.
+
+**Dashboard'da görünmesi için:** ilerlemeni `save` ile kaydedip, bulgunu PR ile ekleyip, PR'ın birleşmesini beklemen yeterli.
+Dashboard sadece repodaki dosyalardan beslenir; ayrıca bir şey girmen gerekmez.
+
+**Arayüzle ilgili öneriler:** Sunumda tutarlı görünmesi için dashboard'un tasarımını ve kodunu (`dashboard/` klasörü) Alper yönetiyor.
+Bir hata görürsen, bir ekran eksik geliyorsa veya bir fikrin varsa Alper'e yaz ya da GitHub'da bir **Issue** aç — birlikte ekleriz.
+Bu yüzden `dashboard/` klasöründeki dosyalarda değişiklik yapma; o klasöre dokunan PR'lar zaten Alper'in onayını bekler.
+
+---
+
 ## Sık karşılaşılan sorunlar
 
 | Sorun | Çözüm |
@@ -182,10 +212,12 @@ yazım stili ve yasaklar orada; AI bunu okuyunca doğru formatta yazar.
 | Push'ta "protected branch" hatası | `main` dalındasın. **Current branch → New branch** ile dal aç, tekrar push'la. |
 | GitHub Desktop "conflict" diyor | Aynı dosyayı iki kişi değiştirmiş. Dokunma, Alper'e yaz. (Herkes sadece kendi dosyalarını değiştirirse olmaz.) |
 | PR'da ❌ var | **Details**'e bak. Lokalde `python scripts/validate.py` aynı hatayı gösterir. |
+| Dashboard'da çalışmam görünmüyor | PR'ın birleşti mi? Birleştikten sonra 1–2 dk bekle ve sayfayı yenile. Challenge'lar için `save` + push yaptın mı? Hâlâ yoksa Alper'e yaz (GitHub kullanıcı adın `team.json`'a eklenmemiş olabilir). |
 | Yanlış dosyayı commit'ledim | Henüz push'lamadıysan: GitHub Desktop → **History** → commit'e sağ tık → **Undo commit**. Push'ladıysan Alper'e yaz. |
 
 ## Altın kurallar
 - ✋ Sadece **kendi dosyalarını** değiştir (kendi bulguların + `progress/<isim>.json`).
 - 🧪 Test sadece **kendi bilgisayarındaki Juice Shop'ta** ve PortSwigger lablarında. Başka hiçbir siteye deneme yapma ([docs/ethics.md](docs/ethics.md)).
 - ✍️ Bulgular **İngilizce** ve özgün olmalı; internetten çözüm kopyalama. AI yazıya yardım eder, bulguyu uyduramaz.
-- 📸 Bulduğun an ekran görüntüsü al.
+- 📸 Bulduğun an ekran görüntüsü al — sunumda dashboard üzerinden gösterilecek, okunaklı olsun.
+- 📊 Dashboard arayüzüyle (`dashboard/`) ilgili fikirlerini Alper'e ilet; o klasördeki dosyaları değiştirme.

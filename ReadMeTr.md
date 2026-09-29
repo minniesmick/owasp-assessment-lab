@@ -2,6 +2,7 @@
 
 [![English](https://img.shields.io/badge/lang-English-blue?style=for-the-badge)](README.md)
 [![Türkçe](https://img.shields.io/badge/dil-T%C3%BCrk%C3%A7e-red?style=for-the-badge)](ReadMeTr.md)
+[![Dashboard](https://img.shields.io/badge/Dashboard-live-6d5bd0?style=for-the-badge)](https://minniesmick.github.io/owasp-assessment-lab/)
 
 # OWASP Top 10 Güvenlik Değerlendirme Laboratuvarı
 
@@ -18,12 +19,20 @@ Introduction to Cyber Security — Grup Projesi, 2026/2027 (Seçenek 3)
 Bulgular ortak bir formatta toplanır ve bir değerlendirme panelinde (dashboard) görselleştirilir.
 
 ## İçindekiler
+- [Dashboard](#dashboard)
 - [Klasör yapısı](#klasör-yapısı)
 - [Kurulum](#kurulum)
 - [Çalışma akışı](#çalışma-akışı)
 - [Challenge ilerlemesini paylaşma](#challenge-ilerlemesini-paylaşma)
 - [Ekip](#ekip)
 - [Etik](#etik)
+
+## Dashboard
+**https://minniesmick.github.io/owasp-assessment-lab/**
+
+Ekibin çalışmasının canlı özeti: kim ne yaptı, OWASP kapsaması, bulgular, risk ve aktivite. Her `main` güncellemesinde
+repodaki dosyalardan otomatik yeniden oluşturulur. Final sunumunda çalışmalar, bulgular ve ekran görüntüleri buradan gösterilecek.
+Arayüzle ilgili öneriler için Alper'e yazın veya bir Issue açın — ayrıntılar [BASLANGIC.md → Dashboard](BASLANGIC.md#-dashboard).
 
 ## Klasör yapısı
 | Yol | İçerik |

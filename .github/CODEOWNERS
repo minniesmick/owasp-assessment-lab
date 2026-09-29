@@ -1,0 +1,6 @@
+# Pull requests touching these paths automatically request a review from the owner.
+# The dashboard is kept consistent by one maintainer for the final presentation.
+/dashboard/                      @minniesmick
+/.github/workflows/dashboard.yml @minniesmick
+/team.json                       @minniesmick
+/data/                           @minniesmick

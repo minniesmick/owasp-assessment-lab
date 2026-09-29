@@ -2,6 +2,7 @@
 
 [![English](https://img.shields.io/badge/lang-English-blue?style=for-the-badge)](README.md)
 [![Türkçe](https://img.shields.io/badge/dil-T%C3%BCrk%C3%A7e-red?style=for-the-badge)](ReadMeTr.md)
+[![Dashboard](https://img.shields.io/badge/Dashboard-live-6d5bd0?style=for-the-badge)](https://minniesmick.github.io/owasp-assessment-lab/)
 
 # OWASP Top 10 Security Assessment Lab
 
@@ -17,12 +18,20 @@ supported by deep-dive analyses from **PortSwigger Web Security Academy** labs.
 Findings are collected in a structured format and visualized in an assessment dashboard.
 
 ## Contents
+- [Dashboard](#dashboard)
 - [Repository layout](#repository-layout)
 - [Setup](#setup)
 - [Workflow](#workflow)
 - [Sharing challenge progress](#sharing-challenge-progress)
 - [Team](#team)
 - [Ethics](#ethics)
+
+## Dashboard
+**https://minniesmick.github.io/owasp-assessment-lab/**
+
+Live summary of the team's work: who did what, OWASP coverage, findings, risk and activity. Rebuilt automatically from the
+repository files on every update of `main`. The final presentation shows the work, findings and screenshots from here.
+The dashboard UI (`dashboard/`) is maintained by Alper — send suggestions to him or open an issue.
 
 ## Repository layout
 | Path | Content |
