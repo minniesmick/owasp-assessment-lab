@@ -1,15 +1,22 @@
 {
   "member": "Alper",
-  "saved_at": "2026-09-29T02:51:01",
+  "saved_at": "2026-09-29T03:57:46",
   "juice_shop_version": "20.2.0",
-  "continue_code": "xYj5K86Bp7Nq2kjrWRX591myLQzdgOSVYdYxJMoPKgwnVv4EaDbZe3OlR87y",
-  "solved_count": 1,
+  "continue_code": "BP4graVEq7DZowBYQPyNljOKex9djqI9rAmv8rXWR562gpJ4b13knMzLv3ER",
+  "solved_count": 2,
   "solved": [
     {
       "key": "scoreBoardChallenge",
       "name": "Score Board",
       "category": "Miscellaneous",
       "owasp": "-",
+      "difficulty": 1
+    },
+    {
+      "key": "localXssChallenge",
+      "name": "DOM XSS",
+      "category": "XSS",
+      "owasp": "A05",
       "difficulty": 1
     }
   ]
