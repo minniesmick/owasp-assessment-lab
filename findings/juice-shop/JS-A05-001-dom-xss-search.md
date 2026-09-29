@@ -16,6 +16,9 @@ evidence:
   - evidence/juice-shop/JS-A05-001-1.jpg
 ---
 
+> **Örnek bulgu / Example finding** — Rapor formatını ekibe göstermek için AI ile birlikte çözülüp yazıldı; Alper adına bırakıldı.
+> Written together with AI as a worked example of the report format, kept under Alper's name.
+
 ## Summary
 The product search reflects the `q` value into the page without sanitising it, so an attacker-supplied
 HTML/JavaScript payload runs in the victim's browser. This is a DOM-based cross-site scripting (XSS) issue.
