@@ -40,6 +40,8 @@ reply in Turkish, but **everything written into repository files is in English**
 | `scripts/progress.py` | Save / status / load challenge progress |
 | `docs/methodology.md`, `docs/owasp-mapping.md`, `docs/ethics.md` | Paper-ready method, category map, ethics |
 | `README.md`, `ReadMeTr.md`, `BASLANGIC.md` | Project overview (EN/TR) and beginner guide (TR) |
+| `dashboard/` | React + Vite dashboard, built from the files above by `scripts/build_dashboard_data.py`; see `dashboard/README.md`, `PRODUCT.md`, `.design/dashboard/DESIGN_BRIEF.md` |
+| `team.json`, `data/` | Team roster and Juice Shop challenge catalog used by the dashboard |
 
 `README.md` files inside content folders are folder guides, not findings.
 

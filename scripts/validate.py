@@ -14,6 +14,9 @@ import sys
 from datetime import date
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import cvss  # noqa: E402
+
 ROOT = Path(__file__).resolve().parent.parent
 MAX_FILE_MB = 5
 
@@ -157,8 +160,17 @@ def check_finding(path, source_dir, seen_ids):
         except (TypeError, ValueError):
             error(path, f"cvss_score sayi olmali, '{fm['cvss_score']}' degil")
 
-    if "cvss_vector" in fm and not str(fm["cvss_vector"]).startswith("CVSS:3.1/"):
-        error(path, "cvss_vector 'CVSS:3.1/' ile baslamali. https://www.first.org/cvss/calculator/3.1")
+    if "cvss_vector" in fm:
+        try:
+            computed = cvss.score(str(fm["cvss_vector"]))["base"]
+            try:
+                if float(fm.get("cvss_score")) != computed:
+                    error(path, f"cvss_score {fm.get('cvss_score')} vektorle uyusmuyor: bu vektorun puani {computed}. "
+                                "Hesaplayici: https://www.first.org/cvss/calculator/3.1")
+            except (TypeError, ValueError):
+                pass  # reported by the cvss_score check above
+        except ValueError as e:
+            error(path, f"cvss_vector gecersiz ({e}). Ornek: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N")
 
     if "status" in fm and fm["status"] not in STATUSES:
         error(path, f"status '{fm['status']}' gecersiz. Secenekler: draft, confirmed, reviewed")

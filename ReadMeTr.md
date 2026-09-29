@@ -39,7 +39,9 @@ Bulgular ortak bir formatta toplanır ve bir değerlendirme panelinde (dashboard
 | `scripts/validate.py` | Dosya adı, klasör ve zorunlu alanları kontrol eder (GitHub'da da çalışır) |
 | `docs/` | Metodoloji, OWASP kapsam tablosu, etik |
 | `paper/` | IEEE makalesi (5–7 sayfa) |
-| `dashboard/` | Değerlendirme paneli (web arayüzü) |
+| `dashboard/` | Değerlendirme paneli (web arayüzü) — canlı: https://minniesmick.github.io/owasp-assessment-lab/ |
+| `team.json` | Ekip listesi: isimler, GitHub kullanıcı adları, sorumlu OWASP kategorileri |
+| `data/` | Juice Shop challenge kataloğu (dashboard için) |
 
 ## Kurulum
 Gerekenler: **Docker Desktop**, **Python 3**, DevTools'lu bir tarayıcı (Chrome / Firefox).

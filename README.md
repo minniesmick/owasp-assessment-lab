@@ -38,7 +38,9 @@ Findings are collected in a structured format and visualized in an assessment da
 | `scripts/validate.py` | Checks file names, folders and required fields (also runs on GitHub) |
 | `docs/` | Methodology, OWASP coverage map, ethics |
 | `paper/` | IEEE paper (5–7 pages) |
-| `dashboard/` | Assessment dashboard (web UI) |
+| `dashboard/` | Assessment dashboard (web UI) — live at https://minniesmick.github.io/owasp-assessment-lab/ |
+| `team.json` | Team roster: names, GitHub usernames, owned OWASP categories |
+| `data/` | Juice Shop challenge catalog snapshot (for the dashboard) |
 
 ## Setup
 Requirements: **Docker Desktop**, **Python 3**, a browser with DevTools (Chrome / Firefox).

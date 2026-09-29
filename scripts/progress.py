@@ -8,6 +8,7 @@ Usage (Juice Shop must be running for save/load):
     python scripts/progress.py save <name>       # export my progress to progress/<name>.json
     python scripts/progress.py status            # team overview per OWASP category (read-only)
     python scripts/progress.py load [name ...]   # apply saved progress to my local Juice Shop
+    python scripts/progress.py catalog           # (maintainers) snapshot challenge list to data/ for the dashboard
 
 Only Python standard library is used.
 """
@@ -186,10 +187,35 @@ def cmd_status():
         print(f"{e['member']}: {e['solved_count']} solved, saved {e['saved_at']} (v{e['juice_shop_version']})")
 
 
+def cmd_catalog():
+    """Snapshot the challenge list so the published dashboard knows totals without a running Juice Shop."""
+    challenges = fetch_challenges()
+    version = json.loads(request("/rest/admin/application-version"))["version"]
+    out = PROGRESS_DIR.parent / "data" / "juice-shop-challenges.json"
+    out.parent.mkdir(exist_ok=True)
+    data = {
+        "juice_shop_version": version,
+        "challenges": [
+            {
+                "key": c["key"],
+                "name": c["name"],
+                "category": c["category"],
+                "owasp": owasp_of(c),
+                "difficulty": c["difficulty"],
+            }
+            for c in sorted(challenges, key=lambda c: (owasp_of(c), c["difficulty"], c["name"]))
+        ],
+    }
+    out.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    print(f"Saved {len(challenges)} challenges (v{version}) to {out.relative_to(PROGRESS_DIR.parent)}")
+
+
 def main():
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     args = sys.argv[1:]
+    if args == ["catalog"]:
+        return cmd_catalog()
     if not args or args[0] not in {"save", "load", "status"}:
         sys.exit(__doc__)
     if args[0] == "save":

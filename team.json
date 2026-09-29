@@ -1,0 +1,37 @@
+{
+  "_comment": "Team roster for the dashboard. 'id' must match progress/<id>.json. 'github' = GitHub username (fill in when accounts exist). 'aliases' = extra git author names/emails that belong to this member. 'owasp' = Juice Shop categories this member owns.",
+  "members": [
+    {
+      "id": "alper",
+      "name": "Alper",
+      "github": "minniesmick",
+      "aliases": ["mm"],
+      "role": "Lab setup, PortSwigger write-ups, dashboard",
+      "owasp": []
+    },
+    {
+      "id": "elif",
+      "name": "Elif",
+      "github": null,
+      "aliases": [],
+      "role": "Juice Shop assessment",
+      "owasp": ["A01", "A05", "A07"]
+    },
+    {
+      "id": "samed",
+      "name": "Samed",
+      "github": null,
+      "aliases": [],
+      "role": "Juice Shop assessment",
+      "owasp": ["A02", "A04", "A10"]
+    },
+    {
+      "id": "altay",
+      "name": "Altay",
+      "github": null,
+      "aliases": [],
+      "role": "Juice Shop assessment, CVSS scoring",
+      "owasp": ["A03", "A06", "A08", "A09"]
+    }
+  ]
+}
