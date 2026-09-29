@@ -12,6 +12,7 @@ severity: critical            # critical | high | medium | low | info
 cvss_vector: "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N"
 cvss_score: 9.1
 tester: name-surname
+tools: DevTools, Burp Repeater   # what you used: DevTools, Burp, ZAP, curl ...
 date: 2026-10-01
 status: confirmed             # draft | confirmed | reviewed
 evidence:
@@ -26,6 +27,7 @@ How this class of vulnerability works in general (2–4 sentences, own words).
 
 ## Steps to reproduce
 1. Start Juice Shop locally (`docker compose up -d`) and open http://127.0.0.1:3000
+   (mention the tool for each step, e.g. "DevTools → Network", "Burp Repeater")
 2. ...
 3. ...
 

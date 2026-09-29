@@ -36,7 +36,9 @@ Bulgular ortak bir formatta toplanır ve bir değerlendirme panelinde (dashboard
 | `dashboard/` | Değerlendirme paneli (web arayüzü) |
 
 ## Kurulum
-Gerekenler: **Docker Desktop**, **Python 3**, **Burp Suite Community** (test için).
+Gerekenler: **Docker Desktop**, **Python 3**, DevTools'lu bir tarayıcı (Chrome / Firefox).
+İsteğe bağlı: **Burp Suite Community** veya **OWASP ZAP** — sadece isteklerin yakalanması veya tekrarlanması gereken challenge'lar için.
+Hangi aracın ne zaman kullanılacağı: [Tools](docs/methodology.md#tools).
 
 ```bash
 docker compose up -d        # Juice Shop'u başlat → http://127.0.0.1:3000
@@ -48,7 +50,7 @@ docker compose down         # durdur
 
 ## Çalışma akışı
 1. **Kendi OWASP kategorilerinden** bir challenge seç (bkz. [Ekip](#ekip)).
-2. Önce ilgili PortSwigger konusunu oku, sonra Juice Shop'ta çöz.
+2. Önce ilgili PortSwigger konusunu oku, sonra Juice Shop'ta çöz — DevTools (F12) ile başla, Burp/ZAP'ı sadece gerekince kullan.
 3. İlerlemeni kaydet: `python scripts/progress.py save <isim>`.
 4. Önemli challenge'lar için bulgu yaz: `findings/_TEMPLATE.md`'yi kopyala, doldur, ekran görüntülerini `evidence/`'a koy.
 5. Dosyalarını kontrol et: `python scripts/validate.py` — çıkan her `[HATA]`'yı düzelt.

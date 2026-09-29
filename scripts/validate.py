@@ -31,7 +31,7 @@ SEVERITY_RANGES = {
 }
 REQUIRED_FIELDS = [
     "id", "title", "source", "target", "owasp", "cwe", "severity",
-    "cvss_vector", "cvss_score", "tester", "date", "status", "evidence",
+    "cvss_vector", "cvss_score", "tester", "tools", "date", "status", "evidence",
 ]
 PLACEHOLDERS = {"name-surname", "_fill in_", ""}
 IMAGE_EXT = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
@@ -76,8 +76,9 @@ def parse_front_matter(text):
         kv = re.match(r"^([A-Za-z_][\w]*)\s*:\s*(.*)$", line)
         if not kv:
             continue
-        key, value = kv.group(1), clean_value(kv.group(2))
-        if value == "":
+        key, raw = kv.group(1), re.sub(r"^\s*#.*$", "", kv.group(2)).strip()
+        value = clean_value(raw)
+        if raw == "":
             data[key], current_list = [], key
         else:
             data[key], current_list = value, None
@@ -162,6 +163,9 @@ def check_finding(path, source_dir, seen_ids):
 
     if "tester" in fm and str(fm["tester"]).strip().lower() in PLACEHOLDERS:
         error(path, "tester alanina kendi isminizi yazin")
+
+    if "tools" in fm and (fm["tools"] == [] or not str(fm["tools"]).strip()):
+        error(path, "tools alanina kullandiginiz araclari yazin (ornek: DevTools, Burp Repeater)")
 
     if "date" in fm:
         try:

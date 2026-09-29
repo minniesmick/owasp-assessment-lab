@@ -36,7 +36,9 @@ Findings are collected in a structured format and visualized in an assessment da
 | `dashboard/` | Assessment dashboard (web UI) |
 
 ## Setup
-Requirements: **Docker Desktop**, **Python 3**, **Burp Suite Community** (for testing).
+Requirements: **Docker Desktop**, **Python 3**, a browser with DevTools (Chrome / Firefox).
+Optional: **Burp Suite Community** or **OWASP ZAP** — only for challenges that need requests intercepted or repeated.
+See [Tools](docs/methodology.md#tools) for when to use which.
 
 ```bash
 docker compose up -d        # start Juice Shop → http://127.0.0.1:3000
@@ -48,7 +50,7 @@ docker compose down         # stop
 
 ## Workflow
 1. Pick a challenge from **your own OWASP categories** (see [Team](#team)).
-2. Read the related PortSwigger topic first, then solve it in Juice Shop.
+2. Read the related PortSwigger topic first, then solve it in Juice Shop — start with DevTools (F12), use Burp/ZAP only when needed.
 3. Save your progress: `python scripts/progress.py save <your-name>`.
 4. For important challenges, write a finding: copy `findings/_TEMPLATE.md`, fill it in, add screenshots to `evidence/`.
 5. Check your files: `python scripts/validate.py` — fix every `[HATA]` (error) it prints.
