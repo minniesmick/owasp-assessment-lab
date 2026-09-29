@@ -1,5 +1,7 @@
 # How we work
 
+> 🇹🇷 Yeni başlıyorsan bu dosya yerine **[BASLANGIC.md](BASLANGIC.md)** rehberini oku (Türkçe, adım adım).
+
 ## Adding a finding (no Git experience needed)
 Option A — GitHub website:
 1. Open `findings/_TEMPLATE.md`, copy its content.

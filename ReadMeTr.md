@@ -9,6 +9,10 @@ Introduction to Cyber Security — Grup Projesi, 2026/2027 (Seçenek 3)
 
 </div>
 
+> [!TIP]
+> **İlk kez mi buradasın?** GitHub'a alışık değilsen önce **[BASLANGIC.md](BASLANGIC.md)** rehberini oku —
+> kurulumdan ilk bulguyu eklemeye kadar her adım orada.
+
 **OWASP Juice Shop** uygulamasının **OWASP Top 10:2025**'in tüm kategorilerine göre güvenlik değerlendirmesi.
 **PortSwigger Web Security Academy** lablarından derinlemesine teknik analizlerle desteklenir.
 Bulgular ortak bir formatta toplanır ve bir değerlendirme panelinde (dashboard) görselleştirilir.
@@ -24,6 +28,7 @@ Bulgular ortak bir formatta toplanır ve bir değerlendirme panelinde (dashboard
 ## Klasör yapısı
 | Yol | İçerik |
 |---|---|
+| `BASLANGIC.md` | Yeni başlayanlar için adım adım rehber |
 | `findings/_TEMPLATE.md` | Bulgu şablonu — her bulgu için kopyalanır |
 | `findings/juice-shop/` | Her Juice Shop bulgusu için bir Markdown dosyası (`JS-A05-001-login-sqli.md`) |
 | `findings/portswigger/` | Her PortSwigger lab writeup'ı için bir dosya (`PS-A05-001-...md`) |

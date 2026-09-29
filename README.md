@@ -9,6 +9,9 @@ Introduction to Cyber Security — Group Project, 2026/2027 (Option 3)
 
 </div>
 
+> [!TIP]
+> **Team members:** new to GitHub? Start with the Turkish step-by-step guide **[BASLANGIC.md](BASLANGIC.md)**.
+
 Security assessment of **OWASP Juice Shop** against all **OWASP Top 10:2025** categories,
 supported by deep-dive analyses from **PortSwigger Web Security Academy** labs.
 Findings are collected in a structured format and visualized in an assessment dashboard.
@@ -24,6 +27,7 @@ Findings are collected in a structured format and visualized in an assessment da
 ## Repository layout
 | Path | Content |
 |---|---|
+| `BASLANGIC.md` | Step-by-step beginner guide (Turkish) |
 | `findings/_TEMPLATE.md` | Finding template — copy this for every finding |
 | `findings/juice-shop/` | One Markdown file per Juice Shop finding (`JS-A05-001-login-sqli.md`) |
 | `findings/portswigger/` | One Markdown file per PortSwigger lab write-up (`PS-A05-001-...md`) |

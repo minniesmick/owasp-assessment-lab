@@ -1,4 +1,7 @@
 ---
+# TR: Bu dosyayi kopyala, dogru klasore koy, yeniden adlandir. '#' ile baslayan satirlar aciklamadir,
+#     silebilirsin. Alan adlarini (id:, title: ...) degistirme, sadece degerlerini yaz.
+#     Adim adim: BASLANGIC.md -> 4. Bulgu ekleme
 # Copy this file to findings/juice-shop/ or findings/portswigger/ and rename:
 #   JS-A05-001-login-sqli.md   (Juice Shop)
 #   PS-A05-001-sqli-union.md   (PortSwigger)

@@ -38,6 +38,8 @@ IMAGE_EXT = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
 FINDING_NAME = re.compile(r"^(JS|PS)-(A(?:0[1-9]|10))-(\d{3})-[a-z0-9]+(?:-[a-z0-9]+)*\.md$")
 EVIDENCE_NAME = re.compile(r"^((?:JS|PS)-A(?:0[1-9]|10)-\d{3})-\d+\.(png|jpe?g|gif|webp)$")
 SKIP_DIRS = {".git", "node_modules", "dist", ".venv", "__pycache__"}
+# Files allowed in any content folder besides the real content (folder guides, empty-folder markers).
+IGNORED_FILES = {".gitkeep", "README.md"}
 
 errors = []
 warnings = []
@@ -199,7 +201,7 @@ def check_findings():
     findings_dir = ROOT / "findings"
     seen_ids = {}
     for p in findings_dir.iterdir():
-        if p.is_file() and p.name != "_TEMPLATE.md":
+        if p.is_file() and p.name not in IGNORED_FILES | {"_TEMPLATE.md"}:
             error(p, "findings/ kokune dosya konmaz. findings/juice-shop/ veya findings/portswigger/ kullanin")
         elif p.is_dir() and p.name not in SOURCES:
             error(p, "Bilinmeyen klasor. Sadece findings/juice-shop/ ve findings/portswigger/ var")
@@ -210,7 +212,7 @@ def check_findings():
         for p in sorted(folder.rglob("*")):
             if p.is_dir():
                 error(p, "Alt klasor acmayin, dosyalari dogrudan klasore koyun")
-            elif p.name == ".gitkeep":
+            elif p.name in IGNORED_FILES:
                 continue
             elif p.suffix.lower() != ".md":
                 error(p, "findings/ icinde sadece .md dosyasi olur. Resimler evidence/ klasorune")
@@ -222,14 +224,14 @@ def check_findings():
 def check_evidence(finding_ids):
     evidence_dir = ROOT / "evidence"
     for p in evidence_dir.iterdir():
-        if p.is_file() and p.name != ".gitkeep":
+        if p.is_file() and p.name not in IGNORED_FILES:
             error(p, "evidence/ kokune dosya konmaz. evidence/juice-shop/ veya evidence/portswigger/ kullanin")
     for source_dir, prefix in SOURCES.items():
         folder = evidence_dir / source_dir
         if not folder.is_dir():
             continue
         for p in sorted(folder.rglob("*")):
-            if p.is_dir() or p.name == ".gitkeep":
+            if p.is_dir() or p.name in IGNORED_FILES:
                 continue
             m = EVIDENCE_NAME.match(p.name)
             if not m:
@@ -246,7 +248,7 @@ def check_progress():
     if not progress_dir.is_dir():
         return
     for p in sorted(progress_dir.iterdir()):
-        if p.name == ".gitkeep":
+        if p.name in IGNORED_FILES:
             continue
         if p.suffix != ".json":
             error(p, "progress/ icinde sadece 'python scripts/progress.py save <isim>' ile olusan .json dosyalari olur")
