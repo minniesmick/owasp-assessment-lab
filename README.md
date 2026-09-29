@@ -28,6 +28,7 @@ Findings are collected in a structured format and visualized in an assessment da
 | Path | Content |
 |---|---|
 | `BASLANGIC.md` | Step-by-step beginner guide (Turkish) |
+| `AGENTS.md` | Project rules for AI assistants (ChatGPT, Claude, Copilot …) |
 | `findings/_TEMPLATE.md` | Finding template — copy this for every finding |
 | `findings/juice-shop/` | One Markdown file per Juice Shop finding (`JS-A05-001-login-sqli.md`) |
 | `findings/portswigger/` | One Markdown file per PortSwigger lab write-up (`PS-A05-001-...md`) |
@@ -61,7 +62,7 @@ docker compose down         # stop
 6. Commit and push. The same check runs automatically on GitHub; a red ❌ means something is wrong.
 7. Another member reproduces the finding before it is marked `reviewed`.
 
-Solving a challenge ≠ writing a finding. The paper is built from `findings/`; aim for at least 2–3 findings per OWASP category.
+Findings are written in **English**. Solving a challenge ≠ writing a finding. The paper is built from `findings/`; aim for at least 2–3 findings per OWASP category.
 Details: [CONTRIBUTING.md](CONTRIBUTING.md), [docs/methodology.md](docs/methodology.md).
 
 ## Sharing challenge progress

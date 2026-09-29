@@ -10,7 +10,7 @@
 - [ ] Ekran görüntüleri `evidence/` klasöründe ve bulgu dosyasında linkli
 - [ ] `python scripts/validate.py` → "Kontrol gecti"
 - [ ] Sadece localhost Juice Shop / PortSwigger lab'ında test edildi
-- [ ] Kendi cümlelerimle yazdım
+- [ ] İngilizce ve kendi cümlelerimle yazdım (AI kullandıysam sonuçları uydurmadı, kontrol ettim)
 - [ ] (varsa) `python scripts/progress.py save <isim>` ile ilerlemem kaydedildi
 
 <!-- Sonra sağdaki "Reviewers" kısmından bir arkadaşını seç. Onaylayan kişi bulguyu kendi Juice Shop'unda tekrar etmeli. -->

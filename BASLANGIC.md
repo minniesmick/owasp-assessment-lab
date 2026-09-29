@@ -9,7 +9,8 @@ Takıldığın yerde [Sık karşılaşılan sorunlar](#sık-karşılaşılan-sor
 3. [Her çalışma oturumu](#3-her-çalışma-oturumu)
 4. [Bulgu ekleme ve Pull Request](#4-bulgu-ekleme-ve-pull-request)
 5. [Arkadaşının PR'ını onaylama (review)](#5-arkadaşının-prını-onaylama-review)
-6. [Sık karşılaşılan sorunlar](#sık-karşılaşılan-sorunlar)
+6. [AI ile çalışma](#6-ai-ile-çalışma)
+7. [Sık karşılaşılan sorunlar](#sık-karşılaşılan-sorunlar)
 
 ---
 
@@ -103,6 +104,7 @@ Burp Suite / ZAP şimdilik gerekmez. Tarayıcının F12 (DevTools) aracıyla ba�
    ```
    Sıra numarası için klasöre bak, o kategorideki son numaranın bir fazlasını ver.
 3. Dosyayı aç, `---` arasındaki alanları doldur (her alanın yanında açıklaması var), sonra alttaki bölümleri yaz.
+4. **Bulgular İngilizce yazılır** (makale İngilizce). AI'dan yardım alabilirsin → [6. AI ile çalışma](#6-ai-ile-çalışma).
 
 ### 4.2 Ekran görüntülerini ekle
 1. Görüntüleri `evidence/juice-shop/` klasörüne koy.
@@ -143,6 +145,32 @@ Bir bulguyu onaylamak = **kendi Juice Shop'unda tekrar edip aynı sonucu aldığ
 
 ---
 
+## 6. AI ile çalışma
+
+Bulguyu İngilizce yazarken, bir kavramı anlamaya çalışırken veya bir hatayı çözerken AI kullanabilirsin.
+Repoda AI için hazırlanmış kurallar dosyası var: **[AGENTS.md](AGENTS.md)**. Dosya adı kuralları, zorunlu alanlar,
+yazım stili ve yasaklar orada; AI bunu okuyunca doğru formatta yazar.
+
+**Nasıl kullanılır:**
+- **ChatGPT / Claude / Gemini (web sohbet):** sohbetin başında `AGENTS.md` ve `findings/_TEMPLATE.md` dosyalarını ekle
+  (sürükle-bırak), sonra ne yaptığını anlat: hangi sayfada ne denedin, hangi isteği gönderdin, ne sonuç aldın.
+  Ekran görüntülerini de ekleyebilirsin.
+- **Cursor / Copilot / Claude Code / Codex (kod editörü):** repo klasörünü açman yeterli, `AGENTS.md`'yi kendileri okur.
+
+Örnek istek:
+> AGENTS.md kurallarına göre JS-A01-001 bulgusunu yaz. Juice Shop'ta giriş yaptıktan sonra DevTools → Network'te
+> `GET /rest/basket/6` isteğini gördüm, 6'yı 1 yapıp tekrar gönderince başka kullanıcının sepeti geldi. Ekran görüntüleri ekte.
+
+**Kurallar:**
+- ⚠️ **AI bulgu uyduramaz.** Adımlar, istekler, sonuçlar ve ekran görüntüleri **senin gerçekten yaptığın** şeyler olmalı.
+  AI sadece yazıyı düzenler, formatlar, çevirir, açıklar.
+- AI'ın yazdığını **oku ve anla** — sunumda hoca sorarsa sen açıklayacaksın.
+- AI'ın verdiği kaynak linklerini tıklayıp kontrol et; AI bazen var olmayan link uydurur.
+- Sonunda yine `python scripts/validate.py` çalıştır.
+- AI'dan yardım aldığımızı makalede kısaca belirteceğiz, saklanacak bir şey değil.
+
+---
+
 ## Sık karşılaşılan sorunlar
 
 | Sorun | Çözüm |
@@ -159,5 +187,5 @@ Bir bulguyu onaylamak = **kendi Juice Shop'unda tekrar edip aynı sonucu aldığ
 ## Altın kurallar
 - ✋ Sadece **kendi dosyalarını** değiştir (kendi bulguların + `progress/<isim>.json`).
 - 🧪 Test sadece **kendi bilgisayarındaki Juice Shop'ta** ve PortSwigger lablarında. Başka hiçbir siteye deneme yapma ([docs/ethics.md](docs/ethics.md)).
-- ✍️ Bulguları **kendi cümlelerinle** yaz, internetten çözüm kopyalama.
+- ✍️ Bulgular **İngilizce** ve özgün olmalı; internetten çözüm kopyalama. AI yazıya yardım eder, bulguyu uyduramaz.
 - 📸 Bulduğun an ekran görüntüsü al.

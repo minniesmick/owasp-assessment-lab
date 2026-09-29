@@ -29,6 +29,7 @@ Bulgular ortak bir formatta toplanır ve bir değerlendirme panelinde (dashboard
 | Yol | İçerik |
 |---|---|
 | `BASLANGIC.md` | Yeni başlayanlar için adım adım rehber |
+| `AGENTS.md` | AI asistanları (ChatGPT, Claude, Copilot…) için proje kuralları |
 | `findings/_TEMPLATE.md` | Bulgu şablonu — her bulgu için kopyalanır |
 | `findings/juice-shop/` | Her Juice Shop bulgusu için bir Markdown dosyası (`JS-A05-001-login-sqli.md`) |
 | `findings/portswigger/` | Her PortSwigger lab writeup'ı için bir dosya (`PS-A05-001-...md`) |
@@ -62,7 +63,7 @@ docker compose down         # durdur
 6. Commit'le ve push'la. Aynı kontrol GitHub'da otomatik çalışır; kırmızı ❌ bir şeyin yanlış olduğunu gösterir.
 7. Bulgu `reviewed` olmadan önce başka bir üye tarafından tekrar edilir.
 
-Challenge çözmek ≠ bulgu yazmak. Makale `findings/` klasöründen yazılır; her OWASP kategorisi için en az 2–3 bulgu hedeflenir.
+Bulgular **İngilizce** yazılır. Challenge çözmek ≠ bulgu yazmak. Makale `findings/` klasöründen yazılır; her OWASP kategorisi için en az 2–3 bulgu hedeflenir.
 Detaylar: [CONTRIBUTING.md](CONTRIBUTING.md), [docs/methodology.md](docs/methodology.md).
 
 ## Challenge ilerlemesini paylaşma
