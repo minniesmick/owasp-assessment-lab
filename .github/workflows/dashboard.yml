@@ -39,6 +39,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Build codebase map
+        run: node scripts/codebase-map.mjs --root . --out dashboard/public/codebase/index.html --title "OWASP Assessment Lab — codebase"
+
       - name: Build site
         working-directory: dashboard
         run: |

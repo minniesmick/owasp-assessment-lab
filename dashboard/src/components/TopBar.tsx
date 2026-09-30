@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { Moon, Sun } from 'lucide-react'
+import { Moon, Network, Sun } from 'lucide-react'
 import { useDataState } from '../lib/data'
 import { daysSince, relativeTime } from '../lib/format'
 import { setTheme, type Theme } from '../lib/theme'
@@ -29,6 +29,16 @@ export function TopBar() {
           ))}
         </nav>
         <div className="topbar__end">
+          <a
+            className="topbar-link"
+            href="./codebase/index.html"
+            target="_blank"
+            rel="noreferrer"
+            title="Repository map: file tree, import/link graph and report (opens in a new tab)"
+          >
+            <Network size={15} aria-hidden="true" />
+            <span className="topbar-link__label">Code map</span>
+          </a>
           <DataStamp />
           <ThemeToggle />
         </div>
