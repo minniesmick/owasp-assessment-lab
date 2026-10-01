@@ -60,7 +60,7 @@ Burp Suite / ZAP şimdilik gerekmez. Tarayıcının F12 (DevTools) aracıyla ba�
 
 ### 2.4 Juice Shop'u ilk kez çalıştır
 1. Docker Desktop'u aç, sol altta yeşil "Engine running" yazana kadar bekle.
-2. GitHub Desktop'ta **Repository → Open in Command Prompt** (veya PowerShell).
+2. GitHub Desktop'ta **Repository → Open in Command Prompt** (Mac'te **Open in Terminal**).
 3. Açılan pencereye yaz:
    ```
    docker compose up -d
@@ -205,7 +205,7 @@ Bu yüzden `dashboard/` klasöründeki dosyalarda değişiklik yapma; o klasöre
 
 | Sorun | Çözüm |
 |---|---|
-| `python` komutu bulunamadı | `py` yazmayı dene. O da olmazsa Python'u "Add to PATH" işaretli tekrar kur. |
+| `python` komutu bulunamadı | **Mac:** `python3` yaz (örn. `python3 scripts/validate.py`). **Windows:** `py` yazmayı dene. O da olmazsa Python'u "Add to PATH" işaretli tekrar kur. |
 | `docker` komutu bulunamadı / "cannot connect" | Docker Desktop açık değil. Aç, "Engine running" olana kadar bekle. |
 | http://127.0.0.1:3000 açılmıyor | Komut penceresinde `docker compose up -d` çalıştır, 30 sn bekle. |
 | Juice Shop'taki ilerlemem gitti | Normal, yeniden başlayınca sıfırlanır. `python scripts/progress.py load Elif` ile geri yükle. |

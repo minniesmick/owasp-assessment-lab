@@ -4,8 +4,8 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "data": "python ../scripts/build_dashboard_data.py",
-    "fixture": "python dev/make_fixture.py",
+    "data": "python3 ../scripts/build_dashboard_data.py || python ../scripts/build_dashboard_data.py",
+    "fixture": "python3 dev/make_fixture.py || python dev/make_fixture.py",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",

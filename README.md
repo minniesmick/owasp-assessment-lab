@@ -53,7 +53,7 @@ The dashboard UI (`dashboard/`) is maintained by Alper — send suggestions to h
 | `tools/scoped-proxy/` | Intercepting proxy whose scope is fixed in code to the local Juice Shop (see its README) |
 
 ## Setup
-Requirements: **Docker Desktop**, **Python 3**, a browser with DevTools (Chrome / Firefox).
+Requirements: **Docker Desktop**, **Python 3** (on macOS/Linux run the commands below with `python3`), a browser with DevTools (Chrome / Firefox).
 Optional: **Burp Suite Community** or **OWASP ZAP** — only for challenges that need requests intercepted or repeated.
 See [Tools](docs/methodology.md#tools) for when to use which.
 

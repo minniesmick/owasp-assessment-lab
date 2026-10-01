@@ -1,6 +1,6 @@
 # ⚙️ scripts — Yardımcı komutlar
 
-Komutları repo klasöründe aç (GitHub Desktop → **Repository → Open in Command Prompt**) ve çalıştır.
+Komutları repo klasöründe aç (GitHub Desktop → **Repository → Open in Command Prompt**, Mac'te **Open in Terminal**). Mac'te `python` yerine `python3` yazın ve çalıştır.
 Ek paket gerekmez, sadece Python 3.
 
 | Komut | Ne yapar |

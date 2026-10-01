@@ -54,7 +54,7 @@ Arayüzle ilgili öneriler için Alper'e yazın veya bir Issue açın — ayrın
 | `tools/scoped-proxy/` | Kapsamı kodda lokal Juice Shop'a sabitlenmiş intercepting proxy (kendi README'sine bakın) |
 
 ## Kurulum
-Gerekenler: **Docker Desktop**, **Python 3**, DevTools'lu bir tarayıcı (Chrome / Firefox).
+Gerekenler: **Docker Desktop**, **Python 3** (Mac/Linux'ta komutları `python3` ile çalıştırın), DevTools'lu bir tarayıcı (Chrome / Firefox).
 İsteğe bağlı: **Burp Suite Community** veya **OWASP ZAP** — sadece isteklerin yakalanması veya tekrarlanması gereken challenge'lar için.
 Hangi aracın ne zaman kullanılacağı: [Tools](docs/methodology.md#tools).
 

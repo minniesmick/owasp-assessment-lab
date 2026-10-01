@@ -7,5 +7,5 @@
 - No real user data is collected. Juice Shop accounts are the app's built-in test data.
 - Scanners (e.g. ZAP) are pointed only at `http://127.0.0.1:3000`.
 - The team's own proxy (`tools/scoped-proxy/`) enforces this boundary in code: it can only connect to `127.0.0.1:3000`,
-  and an automated test suite (run in CI against a real Juice Shop) proves that escape attempts never reach any other address.
+  and its automated test suite (`pytest`, run locally against Juice Shop) shows that escape attempts never reach any other address.
 - Findings are reported for learning purposes; no exploit code is published beyond what is needed to document a finding.

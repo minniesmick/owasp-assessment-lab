@@ -15,7 +15,7 @@ web security and makes each finding reproducible with free tools.
 | Secondary | Burp Suite Community Edition | Intercepting and modifying requests before they are sent (Proxy), manual request tampering (Repeater), clean request/response evidence screenshots |
 | Secondary | OWASP ZAP | Same role as Burp; preferred for repeated/automated requests (Fuzzer) since Burp Community's Intruder is rate-limited |
 | Support | curl | Scripted, reproducible requests in the *Steps to reproduce* section |
-| Optional | Scoped Proxy (`tools/scoped-proxy/`) | Team-built intercepting proxy whose scope is fixed in code to `127.0.0.1:3000` (reverse-proxy upstream, request check, socket gate); scope-escape tests run in CI. Demonstrates technical enforcement of the ethical boundary. |
+| Optional | Scoped Proxy (`tools/scoped-proxy/`) | Team-built intercepting proxy whose scope is fixed in code to `127.0.0.1:3000` (reverse-proxy upstream, request check, socket gate); scope-escape test suite runs locally with `pytest`. Demonstrates technical enforcement of the ethical boundary. |
 
 Which tool was used is recorded per finding in the `tools` field of the finding template.
 
