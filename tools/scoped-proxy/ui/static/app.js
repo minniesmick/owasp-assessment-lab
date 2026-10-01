@@ -64,6 +64,21 @@ function parseHeaders(text) {
 const headerText = (obj) => Object.entries(obj || {}).map(([k, v]) => `${k}: ${v}`).join('\n');
 const stateClass = (s) => (/^[a-z]+$/.test(s) ? s : 'error');
 
+// Status chip, coloured by class: 2xx quiet, 3xx dim, 4xx accent outline, 5xx inverted. Errors matter most in testing.
+function statusChip(code) {
+  if (code == null) return '<span class="status">—</span>';
+  const cls = code >= 500 ? 'status-5xx' : code >= 400 ? 'status-4xx' : code >= 300 ? 'status-3xx' : 'status-2xx';
+  return `<span class="status ${cls}">${esc(code)}</span>`;
+}
+
+// created_at is UTC ISO; show local HH:MM:SS and keep the full timestamp in the tooltip.
+function localTime(iso) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return `<span>${esc(iso)}</span>`;
+  const hhmmss = d.toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  return `<span title="${esc(iso)}">${esc(hhmmss)}</span>`;
+}
+
 function pathOf(url) {
   try {
     const u = new URL(url);
@@ -115,7 +130,7 @@ function renderHistory() {
     tr.tabIndex = selected || (!state.selectedId && index === 0) ? 0 : -1; // roving tabindex: one tab stop for the list
     tr.innerHTML = `<td class="col-method">${esc(r.method)}${r.source === 'repeater' ? '<span class="source-tag">rep</span>' : ''}</td>`
       + `<td class="col-path" title="${esc(r.url)}">${esc(pathOf(r.url) || r.url)}</td>`
-      + `<td class="col-status"><span class="status">${esc(r.status_code ?? '—')}</span></td>`
+      + `<td class="col-status">${statusChip(r.status_code)}</td>`
       + `<td class="col-state"><span class="state state-${stateClass(r.state)}">${esc(r.state)}</span></td>`
       + `<td class="col-time">${esc(r.duration_ms ?? '—')} ms</td>`;
     tr.onclick = () => select(r.id === state.selectedId ? null : r.id);
@@ -211,9 +226,9 @@ function renderDetail() {
   d.innerHTML = `<div class="detail-head"><div class="detail-title"><span class="detail-method">${esc(r.method)}</span>`
     + `<code class="detail-path" title="${esc(r.url)}">${esc(path || r.url)}</code></div>`
     + `<button class="icon-button" id="detail-close" aria-label="Close details" title="Close (Esc)">${ICON_CLOSE}</button></div>`
-    + `<div class="detail-meta">${r.status_code ? `<span class="status">${esc(r.status_code)}</span>` : ''}`
+    + `<div class="detail-meta">${r.status_code ? statusChip(r.status_code) : ''}`
     + `<span class="state state-${stateClass(r.state)}">${esc(r.state)}</span>`
-    + `<span>${esc(r.duration_ms ?? '—')} ms</span><span>${esc(r.created_at)}</span></div>`
+    + `<span>${esc(r.duration_ms ?? '—')} ms</span>${localTime(r.created_at)}</div>`
     + `<div class="detail-actions"><button class="button small" id="copy-http" title="Request block for a finding's Steps to reproduce">Copy as HTTP</button>`
     + `<button class="button small" id="copy-curl">Copy as curl</button></div>`
     + `<div class="detail-toolbar"><div class="tabs" role="tablist" aria-label="Message">`
@@ -262,7 +277,7 @@ async function renderIntercept() {
     const path = pathOf(r.url) || r.url;
     card.innerHTML = `<header><div class="intercept-title"><span class="state state-paused">paused</span>`
       + `<span class="detail-method">${esc(r.method)}</span><code class="detail-path" title="${esc(r.url)}">${esc(path)}</code></div>`
-      + `<span class="intercept-time">${esc(r.created_at)}</span></header>`
+      + `<span class="intercept-time">${localTime(r.created_at)}</span></header>`
       + `<label class="edit-field"><span class="edit-label">Headers <span class="label-note">one Name: Value per line</span></span>`
       + `<textarea class="edit-headers" spellcheck="false" autocomplete="off">${esc(headerText(r.request_headers))}</textarea></label>`
       + `<label class="edit-field"><span class="edit-label">Body${r.request_body ? '' : ' <span class="label-note">empty</span>'}</span>`
@@ -316,6 +331,7 @@ function updatePathSuggestions() {
   // Paths seen in history (most recent first), then known endpoints not already listed.
   const seen = [];
   for (const r of state.history) {
+    if (isAsset(r)) continue; // keep static files/socket.io out so API paths are not pushed past the cap
     const p = pathOf(r.url);
     if (p && !seen.includes(p)) seen.push(p);
   }

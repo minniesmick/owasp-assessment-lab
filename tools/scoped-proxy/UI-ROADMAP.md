@@ -23,20 +23,12 @@ Written so work can continue in another session without the earlier conversation
 - Interceptor: styled, content-sized editors; cards keyed by id so edits survive the live refresh.
 - History filter ("Hide assets", on by default, remembered) and search; "Copy as HTTP" / "Copy as curl"
   for findings; yellow intercept banner on every screen.
+- Status code chips coloured by class (`status-2xx` quiet, `3xx` dim, `4xx` accent outline, `5xx` inverted),
+  in the history list and the detail meta.
+- Local time (`HH:MM:SS`) in the detail meta and interceptor cards; full UTC ISO kept in the `title`.
+- Repeater path suggestions skip assets, so API paths are not pushed past the 60-item cap.
 
 ## To do
-
-### Small
-1. **Status code classes.** Today every status uses the same gray `.status` chip. Add a class from the code
-   in `renderHistory()` and `renderDetail()` (e.g. `status-2xx` … `status-5xx`), styled within the palette:
-   2xx quiet gray (as now), 3xx dimmer, 4xx yellow outline (`--accent-line` border, `--accent` text),
-   5xx inverted (`--text` background, black text). Errors matter most in testing (A10 Mishandling of
-   Exceptional Conditions).
-2. **Local time.** `created_at` is shown raw as UTC ISO (`2026-10-01T02:10:11+00:00`). Show local `HH:MM:SS`
-   in the detail meta, interceptor cards and anywhere else it appears; keep the full ISO value in `title`.
-3. **Repeater path suggestions without assets.** `updatePathSuggestions()` still offers image/JS paths, which
-   fill the 60-item cap and push API paths out. Skip records where `isAsset(r)` is true (the helper already
-   exists for the history filter).
 
 ### Medium
 4. **Readable JSON bodies (view only).** In the history detail and the repeater response, when a body parses
