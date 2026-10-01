@@ -223,6 +223,7 @@ Bu yüzden `dashboard/` klasöründeki dosyalarda değişiklik yapma; o klasöre
 | Juice Shop'taki ilerlemem gitti | Normal, yeniden başlayınca sıfırlanır. `python scripts/progress.py load Elif` ile geri yükle. |
 | Push'ta "protected branch" hatası | `main` dalındasın. **Current branch → New branch** ile dal aç, tekrar push'la. |
 | GitHub Desktop "conflict" diyor | Aynı dosyayı iki kişi değiştirmiş. Dokunma, Alper'e yaz. (Herkes sadece kendi dosyalarını değiştirirse olmaz.) |
+| PR'da "Ownership check" ❌ | Başkasının dosyasına dokunmuşsun ya da GitHub kullanıcı adın `team.json`'da yok. Mesaj hangi dosyanın sorun olduğunu yazar; o dosyayı PR'dan çıkar. Kullanıcı adın eksikse Alper'e yaz. |
 | PR'da ❌ var | **Details**'e bak. Lokalde `python scripts/validate.py` aynı hatayı gösterir. |
 | Dashboard'da çalışmam görünmüyor | PR'ın birleşti mi? Birleştikten sonra 1–2 dk bekle ve sayfayı yenile. Challenge'lar için `save` + push yaptın mı? Hâlâ yoksa Alper'e yaz (GitHub kullanıcı adın `team.json`'a eklenmemiş olabilir). |
 | Yanlış dosyayı commit'ledim | Henüz push'lamadıysan: GitHub Desktop → **History** → commit'e sağ tık → **Undo commit**. Push'ladıysan Alper'e yaz. |

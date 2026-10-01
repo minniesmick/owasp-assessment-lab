@@ -96,6 +96,11 @@ def create_app(settings: Settings, history: History, guard: ScopeGuard) -> FastA
     async def all_history() -> list[dict[str, Any]]:
         return [r.to_dict() for r in history.all()]
 
+    @app.post("/api/history/clear")
+    async def clear_history() -> dict[str, int]:
+        # Paused requests keep their record so forward/drop still works; the blocked counter is never reset.
+        return {"cleared": history.clear(set(guard.paused))}
+
     @app.get("/api/intercept")
     async def paused() -> list[dict[str, Any]]:
         return [r.to_dict() for rid in guard.paused if (r := history.get(rid))]

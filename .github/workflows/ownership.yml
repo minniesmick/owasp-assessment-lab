@@ -1,0 +1,27 @@
+name: Ownership check
+
+# pull_request_target runs the trusted copy of the script from the base branch.
+# The pull request is fetched as data only (git diff / git show) and never executed.
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  ownership:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Fetch the pull request as data
+        env:
+          PR: ${{ github.event.pull_request.number }}
+        run: git fetch origin "pull/${PR}/head:pr-head"
+      - name: Members may only change their own files
+        env:
+          AUTHOR: ${{ github.event.pull_request.user.login }}
+          BASE: ${{ github.event.pull_request.base.ref }}
+        run: python3 scripts/check_ownership.py --author "$AUTHOR" --base "origin/${BASE}" --head pr-head

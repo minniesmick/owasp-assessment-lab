@@ -46,6 +46,14 @@ class History:
     def get(self, record_id: str) -> Record | None:
         return next((r for r in self._items if r.id == record_id), None)
 
+    def clear(self, keep: set[str]) -> int:
+        """Drop captured records except `keep` (paused requests still need theirs). blocked_count is not reset."""
+        kept = [r for r in self._items if r.id in keep]
+        removed = len(self._items) - len(kept)
+        self._items.clear()
+        self._items.extend(kept)
+        return removed
+
     def all(self) -> list[Record]:
         return list(reversed(self._items))
 

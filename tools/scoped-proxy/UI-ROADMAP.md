@@ -29,21 +29,13 @@ Written so work can continue in another session without the earlier conversation
 - Repeater path suggestions skip assets, so API paths are not pushed past the 60-item cap.
 - Readable JSON bodies (view only): the history detail body and the repeater response pretty-print JSON with a
   Pretty / Raw toggle (`bodyBlock` / `asJson`), remembered like the asset filter. Interceptor editors untouched.
+- Collapsible Body in the history detail (chevron toggle, line/char count when collapsed, remembered like Pretty / Raw).
+- Repeater response panel matches the history detail: status chip, duration, Headers / Body (Pretty / Raw, collapse), "Copy response body" / "Copy raw response".
+- Interceptor shortcuts: `F` forwards and `D` drops the focused (or first) request; "Forward all" button; `<kbd>` hint.
+- Clear history: "Clear" button (two-step confirm) backed by `POST /api/history/clear`; paused requests stay and the blocked counter is not reset.
 
 ## To do
-
-### Medium
-5. **Repeater response panel = detail panel.** Replace the single `<pre id="repeat-response">` with the same
-   pieces as the history detail: status chip, duration, Headers / Body sections, the JSON view from item 4,
-   and copy buttons ("Copy response body"). Reuse the detail CSS (`.detail-meta`, `.detail-body`, `.tabs`).
-6. **Interceptor keyboard shortcuts.** When the Interceptor view is active and focus is not in a field:
-   `F` forwards and `D` drops the first (or focused) card; add a "Forward all" button next to the toggle.
-   Show the shortcuts in a small hint like the history one (`.key-hint`, `<kbd>`).
-
-### Optional
-7. **Clear history.** A "Clear" button in the history header. Needs a small endpoint, e.g.
-   `POST /api/history/clear` in `web.py` that empties the in-memory `History` store (same CSRF rules as the
-   other POST routes: same-origin `Origin`, JSON content type). Does not change scope.
+Nothing open.
 
 ## How to test without touching real traffic
 - Start Juice Shop (`docker compose up -d`) and the proxy (`start.bat` / `./start.sh`); open

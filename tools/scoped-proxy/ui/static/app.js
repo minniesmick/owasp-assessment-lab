@@ -3,7 +3,7 @@
 // It is inserted with textContent or escaped with esc() — never as raw HTML.
 
 const $ = (s) => document.querySelector(s);
-const state = { history: [], selectedId: null, detailTab: 'request', detailKey: '', historyKey: '', filter: loadFilter(), pretty: loadPretty() };
+const state = { history: [], selectedId: null, detailTab: 'request', detailKey: '', historyKey: '', filter: loadFilter(), pretty: loadPretty(), bodyCollapsed: loadBodyCollapsed() };
 
 // Per-browser convenience preferences only; storage may be unavailable.
 function loadFilter() {
@@ -18,6 +18,13 @@ function loadPretty() {
 function setPretty(on) {
   state.pretty = on;
   try { localStorage.setItem('scoped-proxy.pretty', String(on)); } catch { /* ignore */ }
+}
+function loadBodyCollapsed() {
+  try { return localStorage.getItem('scoped-proxy.bodyCollapsed') === 'true'; } catch { return false; }
+}
+function setBodyCollapsed(on) {
+  state.bodyCollapsed = on;
+  try { localStorage.setItem('scoped-proxy.bodyCollapsed', String(on)); } catch { /* ignore */ }
 }
 const TARGET = 'http://127.0.0.1:3000';
 
@@ -89,11 +96,20 @@ function bodyBlock(text, label = 'Body') {
       + `<button class="js-pretty-toggle" role="tab" data-pretty="true" aria-selected="${state.pretty}">Pretty</button>`
       + `<button class="js-pretty-toggle" role="tab" data-pretty="false" aria-selected="${!state.pretty}">Raw</button></div>`
     : '';
-  return `<div class="body-head"><h3>${esc(label)}</h3>${toggle}</div><pre class="code-block">${esc(shown || '—')}</pre>`;
+  const open = !state.bodyCollapsed;
+  const lines = shown ? shown.split('\n').length : 0;
+  const size = `${lines} ${lines === 1 ? 'line' : 'lines'} · ${shown.length.toLocaleString('en-US')} chars`;
+  return `<div class="body-head"><button class="body-toggle js-body-toggle" aria-expanded="${open}" title="${open ? 'Collapse' : 'Expand'} ${esc(label.toLowerCase())}">`
+    + `<svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 6.5 8 10l3.5-3.5"/></svg><h3>${esc(label)}</h3></button>`
+    + `${open || !shown ? '' : `<span class="body-size">${size}</span>`}${open ? toggle : ''}</div>`
+    + (open ? `<pre class="code-block">${esc(shown || '—')}</pre>` : '');
 }
 
 // Wire the Pretty/Raw buttons inside a just-rendered container to a re-render callback.
 function wirePrettyToggle(root, rerender) {
+  root.querySelectorAll('.js-body-toggle').forEach((b) => {
+    b.onclick = () => { setBodyCollapsed(b.getAttribute('aria-expanded') === 'true'); rerender(); };
+  });
   root.querySelectorAll('.js-pretty-toggle').forEach((b) => {
     b.onclick = () => { setPretty(b.dataset.pretty === 'true'); rerender(); };
   });
@@ -232,7 +248,7 @@ function asCurl(r) {
   return parts.join(' \\\n  ');
 }
 
-async function copyText(text, label) {
+async function copyText(text, label, note = ' Browser-only headers (User-Agent, sec-*, …) were left out.') {
   try {
     await navigator.clipboard.writeText(text);
   } catch {
@@ -242,13 +258,13 @@ async function copyText(text, label) {
     document.execCommand('copy');
     ta.remove();
   }
-  flash(`Copied as ${label}. Browser-only headers (User-Agent, sec-*, …) were left out.`);
+  flash(`Copied ${label}.${note}`);
 }
 
 function renderDetail() {
   const d = detailEl;
   const r = selectedRecord();
-  const key = r ? JSON.stringify(r) + state.detailTab + state.pretty : 'empty';
+  const key = r ? JSON.stringify(r) + state.detailTab + state.pretty + state.bodyCollapsed : 'empty';
   if (key === state.detailKey) return; // unchanged: keep the reader's scroll position during live refresh
   state.detailKey = key;
   if (!r) {
@@ -280,8 +296,8 @@ function renderDetail() {
   $('#detail-close').onclick = () => select(null);
   $('#copy-http').disabled = !path;
   $('#copy-curl').disabled = !path;
-  $('#copy-http').onclick = () => copyText(asHttp(r), 'HTTP');
-  $('#copy-curl').onclick = () => copyText(asCurl(r), 'curl');
+  $('#copy-http').onclick = () => copyText(asHttp(r), 'as HTTP');
+  $('#copy-curl').onclick = () => copyText(asCurl(r), 'as curl');
   const button = $('#send-to-repeat');
   button.disabled = !path;
   button.onclick = () => {
@@ -303,6 +319,7 @@ async function renderIntercept() {
   const items = await api('/api/intercept');
   const list = $('#intercept-list');
   $('#intercept-empty').classList.toggle('hidden', items.length > 0);
+  $('#forward-all').disabled = items.length === 0;
   // Keyed update: keep cards that are still paused untouched, so edits in progress survive the live refresh.
   const ids = new Set(items.map((r) => r.id));
   [...list.children].forEach((card) => { if (!ids.has(card.dataset.id)) card.remove(); });
@@ -332,18 +349,34 @@ async function renderIntercept() {
   });
 }
 
+function sendIntercept(id, card, drop) {
+  const rid = encodeURIComponent(id);
+  if (drop) return api(`/api/intercept/${rid}/drop`, { method: 'POST', body: '{}' });
+  return api(`/api/intercept/${rid}/forward`, {
+    method: 'POST',
+    body: JSON.stringify({ headers: parseHeaders(card.querySelector('.edit-headers').value), body: card.querySelector('.edit-body').value }),
+  });
+}
+
 async function actIntercept(id, card, drop) {
   try {
-    const rid = encodeURIComponent(id);
-    if (drop) await api(`/api/intercept/${rid}/drop`, { method: 'POST', body: '{}' });
-    else await api(`/api/intercept/${rid}/forward`, {
-      method: 'POST',
-      body: JSON.stringify({ headers: parseHeaders(card.querySelector('.edit-headers').value), body: card.querySelector('.edit-body').value }),
-    });
+    await sendIntercept(id, card, drop);
     flash(drop ? 'Request dropped.' : 'Request forwarded.');
     await refresh();
   } catch (e) { flash(e.message, true); }
 }
+
+// Forward every paused request with whatever is currently typed in its editors.
+async function forwardAll() {
+  const cards = [...document.querySelectorAll('#intercept-list .intercept-card')];
+  try {
+    for (const card of cards) await sendIntercept(card.dataset.id, card, false);
+    flash(`Forwarded ${cards.length} request${cards.length === 1 ? '' : 's'}.`);
+  } catch (e) { flash(e.message, true); }
+  await refresh();
+  await renderIntercept().catch(() => {});
+}
+$('#forward-all').onclick = forwardAll;
 
 async function refresh() {
   try {
@@ -422,6 +455,28 @@ $('#banner-off').onclick = () => setIntercept(false);
 $('#history-search').oninput = (e) => { state.filter.q = e.target.value; renderHistory(); };
 $('#hide-assets').checked = state.filter.hideAssets;
 $('#hide-assets').onchange = (e) => { state.filter.hideAssets = e.target.checked; saveFilter(); renderHistory(); };
+// Clear needs a second click within 3 s: history holds the evidence for findings.
+let clearTimer;
+$('#clear-history').onclick = async (e) => {
+  const btn = e.currentTarget;
+  if (!btn.dataset.armed) {
+    btn.dataset.armed = '1';
+    btn.textContent = 'Click again to clear';
+    clearTimer = setTimeout(() => { delete btn.dataset.armed; btn.textContent = 'Clear'; }, 3000);
+    return;
+  }
+  clearTimeout(clearTimer);
+  delete btn.dataset.armed;
+  btn.textContent = 'Clear';
+  try {
+    const d = await api('/api/history/clear', { method: 'POST', body: '{}' });
+    state.selectedId = null;
+    state.historyKey = '';
+    state.detailKey = '';
+    flash(`Cleared ${d.cleared} request${d.cleared === 1 ? '' : 's'} from memory.`);
+    await refresh();
+  } catch (x) { flash(x.message, true); }
+};
 $('#clear-filters').onclick = () => {
   state.filter = { q: '', hideAssets: false };
   $('#history-search').value = '';
@@ -429,16 +484,39 @@ $('#clear-filters').onclick = () => {
   saveFilter();
   renderHistory();
 };
+// Repeater response: same pieces as the history detail (status chip, duration, Headers, Body, copy buttons).
+function renderRepeat() {
+  const d = state.repeat;
+  const el = $('#repeat-result');
+  if (!d) {
+    el.innerHTML = '<p class="repeat-empty">Select a history item or enter a Juice Shop path, then send.</p>';
+    return;
+  }
+  const meta = `<div class="repeat-meta">${statusChip(d.status_code)}<span>${esc(d.ms)} ms</span>`
+    + `<code class="repeat-url" title="${esc(d.url || '')}">${esc(d.url ? new URL(d.url).pathname + new URL(d.url).search : d.path)}</code></div>`;
+  if (d.error) {
+    el.innerHTML = `${meta}<h3>Error</h3><pre class="code-block">${esc(d.error)}</pre>`;
+    return;
+  }
+  el.innerHTML = `${meta}<div class="detail-actions repeat-actions">`
+    + `<button class="button small" id="copy-resp-body"${d.body ? '' : ' disabled'}>Copy response body</button>`
+    + `<button class="button small" id="copy-resp-raw">Copy raw response</button></div>`
+    + `<h3>Headers</h3><pre class="code-block">${esc(headerText(d.headers) || '—')}</pre>`
+    + bodyBlock(d.body, 'Body');
+  wirePrettyToggle(el, renderRepeat);
+  $('#copy-resp-body').onclick = () => copyText(d.body, 'response body', '');
+  $('#copy-resp-raw').onclick = () => copyText(`HTTP ${d.status_code}\n${headerText(d.headers)}\n\n${d.body || ''}`, 'raw response', '');
+}
+renderRepeat();
 $('#send-repeat').onclick = async () => {
+  const t0 = performance.now();
   try {
     const d = await api('/api/repeater', {
       method: 'POST',
       body: JSON.stringify({ method: $('#repeat-method').value, path: $('#repeat-path').value.trim(), headers: parseHeaders($('#repeat-headers').value), body: $('#repeat-body').value }),
     });
-    $('#repeat-meta').textContent = `${d.status_code || 'Error'} · ${d.url || ''}`;
-    const prettyBody = state.pretty && asJson(d.body);
-    $('#repeat-response').textContent = d.error
-      || `HTTP ${d.status_code}\n\n${headerText(d.headers)}\n\n${prettyBody || d.body || ''}`;
+    state.repeat = { ...d, ms: Math.round(performance.now() - t0), path: $('#repeat-path').value.trim() };
+    renderRepeat();
     flash(d.ok ? 'Repeater request complete.' : 'Repeater request rejected.', !d.ok);
     await refresh();
   } catch (e) { flash(e.message, true); }
@@ -455,6 +533,17 @@ document.addEventListener('keydown', (e) => {
   const i = rows.findIndex((r) => r.id === state.selectedId);
   const next = i < 0 ? 0 : Math.min(Math.max(i + (e.key === 'ArrowDown' ? 1 : -1), 0), rows.length - 1);
   select(rows[next].id, { focus: true });
+});
+// Interceptor shortcuts: F forwards, D drops the card holding focus, else the first one (ignored while typing).
+document.addEventListener('keydown', (e) => {
+  if ($('#view-intercept').classList.contains('hidden') || e.altKey || e.ctrlKey || e.metaKey) return;
+  if (e.target.closest?.('input, textarea, select, [contenteditable]')) return;
+  const key = e.key.toLowerCase();
+  if (key !== 'f' && key !== 'd') return;
+  const card = e.target.closest?.('.intercept-card') || $('#intercept-list .intercept-card');
+  if (!card) return;
+  e.preventDefault();
+  actIntercept(card.dataset.id, card, key === 'd').then(() => renderIntercept()).catch(() => {});
 });
 // Re-place the detail (side panel vs inline row) and recount columns whenever a layout breakpoint is crossed.
 [wideLayout, window.matchMedia('(max-width: 1000px)'), window.matchMedia('(max-width: 640px)')]

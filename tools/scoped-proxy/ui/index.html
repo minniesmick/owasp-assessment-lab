@@ -41,6 +41,7 @@
               <label class="search-field"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.25"/><path d="M10.25 10.25 13.5 13.5"/></svg><input id="history-search" type="search" placeholder="Filter by method, path or status" spellcheck="false" autocomplete="off" aria-label="Filter requests"></label>
               <label class="chip-toggle"><input id="hide-assets" type="checkbox" checked><span>Hide assets</span></label>
               <span id="history-count" class="history-count"></span>
+              <button class="button small ghost" id="clear-history" title="Remove captured requests from memory (paused requests stay)">Clear</button>
             </div>
             <div class="table-wrap"><table class="history-table"><thead><tr><th class="col-method">Method</th><th class="col-path">Path</th><th class="col-status">Status</th><th class="col-state">State</th><th class="col-time">Time</th></tr></thead><tbody id="history-body"></tbody></table></div>
             <div id="history-filtered-empty" class="empty hidden">No requests match this filter. <button class="link-button" id="clear-filters">Show all requests</button></div>
@@ -53,7 +54,10 @@
       </section>
 
       <section id="view-intercept" class="view hidden">
-        <div class="section-intro"><h2>Interceptor queue</h2><p>Turn interception on to pause Juice Shop requests before they are forwarded. Turning it off releases every paused request.</p></div>
+        <div class="section-intro intercept-head">
+          <div><h2>Interceptor queue</h2><p>Turn interception on to pause Juice Shop requests before they are forwarded. Turning it off releases every paused request. <span class="key-hint">Use <kbd>F</kbd> to forward and <kbd>D</kbd> to drop the focused (or first) request.</span></p></div>
+          <button class="button" id="forward-all" disabled>Forward all</button>
+        </div>
         <div id="intercept-list"></div>
         <div id="intercept-empty" class="empty">Interception is off or there are no paused requests.</div>
       </section>
@@ -70,8 +74,8 @@
             <button class="button primary" id="send-repeat">Send request</button>
           </div>
           <div class="panel response-panel">
-            <div class="panel-head"><div><h2>Raw response</h2><p id="repeat-meta">Waiting for a request.</p></div></div>
-            <pre id="repeat-response" class="code-block">Select a history item or enter a Juice Shop path.</pre>
+            <div class="panel-head"><div><h2>Response</h2><p>Headers and body of the last repeated request.</p></div></div>
+            <div id="repeat-result" class="detail-body" aria-live="polite"></div>
           </div>
         </div>
       </section>
