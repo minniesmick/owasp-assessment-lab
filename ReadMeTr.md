@@ -65,6 +65,7 @@ docker compose down         # durdur
 - Sürüm **Juice Shop v20.2.0**'a sabitlendi, herkes aynı sürümü test eder.
 - Juice Shop **her yeniden başlatmada tüm verileri sıfırlar**. Bir şey bulduğunda ekran görüntüsünü hemen al.
 - Score Board (`/#/score-board`) tüm challenge'ları listeler, kategoriye göre filtrelenebilir.
+- `docker compose up -d` *port is already allocated* hatası verirse 3000 portunu başka bir program kullanıyordur — `docker ps` ile bul, `docker stop <isim>` ile durdur, sonra `docker compose up -d --force-recreate` çalıştır.
 
 ## Çalışma akışı
 1. **Kendi OWASP kategorilerinden** bir challenge seç (bkz. [Ekip](#ekip)).

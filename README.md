@@ -64,6 +64,7 @@ docker compose down         # stop
 - Version is pinned to **Juice Shop v20.2.0**, so everyone tests the same build.
 - Juice Shop **resets all data on every restart**. Take screenshots as soon as you find something.
 - The Score Board (`/#/score-board`) lists all challenges; filter by category.
+- If `docker compose up -d` fails with *port is already allocated*, another program uses port 3000 — find it with `docker ps`, stop it (`docker stop <name>`), then run `docker compose up -d --force-recreate`.
 
 ## Workflow
 1. Pick a challenge from **your own OWASP categories** (see [Team](#team)).

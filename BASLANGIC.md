@@ -208,6 +208,7 @@ Bu yüzden `dashboard/` klasöründeki dosyalarda değişiklik yapma; o klasöre
 | `python` komutu bulunamadı | **Mac:** `python3` yaz (örn. `python3 scripts/validate.py`). **Windows:** `py` yazmayı dene. O da olmazsa Python'u "Add to PATH" işaretli tekrar kur. |
 | `docker` komutu bulunamadı / "cannot connect" | Docker Desktop açık değil. Aç, "Engine running" olana kadar bekle. |
 | http://127.0.0.1:3000 açılmıyor | Komut penceresinde `docker compose up -d` çalıştır, 30 sn bekle. |
+| `port is already allocated` hatası | 3000 portunu başka bir program kullanıyor. `docker ps` ile hangi container olduğuna bak, `docker stop <isim>` ile durdur, sonra `docker compose up -d --force-recreate`. |
 | Juice Shop'taki ilerlemem gitti | Normal, yeniden başlayınca sıfırlanır. `python scripts/progress.py load Elif` ile geri yükle. |
 | Push'ta "protected branch" hatası | `main` dalındasın. **Current branch → New branch** ile dal aç, tekrar push'la. |
 | GitHub Desktop "conflict" diyor | Aynı dosyayı iki kişi değiştirmiş. Dokunma, Alper'e yaz. (Herkes sadece kendi dosyalarını değiştirirse olmaz.) |
