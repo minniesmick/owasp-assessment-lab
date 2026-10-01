@@ -49,7 +49,8 @@
         <div class="repeater-grid">
           <div class="panel form-panel">
             <label>Method<select id="repeat-method"><option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option><option>DELETE</option><option>HEAD</option><option>OPTIONS</option></select></label>
-            <label>Path<span class="path-field"><span class="path-prefix">http://127.0.0.1:3000</span><input id="repeat-path" placeholder="/rest/products/search?q=apple" spellcheck="false" autocomplete="off"></span></label>
+            <label>Path <span class="label-note">type, or pick from the list</span><span class="path-field"><span class="path-prefix">http://127.0.0.1:3000</span><input id="repeat-path" list="path-suggestions" placeholder="/rest/products/search?q=apple" spellcheck="false" autocomplete="off"></span></label>
+            <datalist id="path-suggestions"></datalist>
             <label>Headers <span class="label-note">one Name: Value per line</span><textarea id="repeat-headers" rows="8" spellcheck="false"></textarea></label>
             <label>Body<textarea id="repeat-body" rows="8" spellcheck="false"></textarea></label>
             <button class="button primary" id="send-repeat">Send request</button>

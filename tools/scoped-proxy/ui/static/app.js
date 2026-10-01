@@ -6,6 +6,26 @@ const $ = (s) => document.querySelector(s);
 const state = { history: [], selected: null };
 const TARGET = 'http://127.0.0.1:3000';
 
+// Common Juice Shop endpoints offered in the repeater path list, on top of paths actually seen in history.
+// They are suggestions only; every request still goes through the same scope gate.
+const KNOWN_PATHS = [
+  '/rest/admin/application-version',
+  '/rest/admin/application-configuration',
+  '/rest/products/search?q=',
+  '/rest/user/whoami',
+  '/rest/basket/1',
+  '/api/Products',
+  '/api/Products/1',
+  '/api/Challenges',
+  '/api/Users',
+  '/api/Feedbacks',
+  '/api/BasketItems',
+  '/rest/products/1/reviews',
+  '/ftp',
+  '/robots.txt',
+  '/sitemap.xml',
+];
+
 function esc(s) {
   return String(s ?? '').replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
 }
@@ -68,11 +88,15 @@ function showDetail(r) {
   state.selected = r;
   const d = $('#history-detail');
   d.classList.remove('hidden');
-  d.innerHTML = `<div class="panel-head detail-head"><div><h2>${esc(r.method)} ${esc(r.url)}</h2><p>${esc(r.created_at)} · ${esc(r.state)}</p></div>`
+  const statusLine = r.status_code
+    ? `<span class="status">${esc(r.status_code)}</span> ${esc(r.duration_ms ?? '—')} ms`
+    : `<span class="state state-${stateClass(r.state)}">${esc(r.state)}</span>`;
+  d.innerHTML = `<div class="panel-head detail-head"><div><h2>${esc(r.method)} ${esc(r.url)}</h2>`
+    + `<p>${statusLine} · ${esc(r.created_at)}</p></div>`
     + `<button class="button ghost" id="send-to-repeat">Send to repeater</button></div>`
     + `<div class="detail-grid"><div><h3>Request headers</h3><pre class="code-block">${esc(headerText(r.request_headers) || '—')}</pre>`
     + `<h3 class="detail-gap">Request body</h3><pre class="code-block">${esc(r.request_body || '—')}</pre></div>`
-    + `<div><h3>Response headers</h3><pre class="code-block">${esc(headerText(r.response_headers) || '—')}</pre>`
+    + `<div><h3>Response ${r.status_code ? `· HTTP ${esc(r.status_code)}` : ''} headers</h3><pre class="code-block">${esc(headerText(r.response_headers) || '—')}</pre>`
     + `<h3 class="detail-gap">Response body</h3><pre class="code-block">${esc(r.response_body || r.error || '—')}</pre></div></div>`;
   const button = $('#send-to-repeat');
   const path = pathOf(r.url);
@@ -127,8 +151,26 @@ async function refresh() {
     $('#pending-count').textContent = s.paused_count;
     $('#stat-blocked').textContent = s.blocked_count;
     $('#proxy-url').textContent = s.proxy;
+    updatePathSuggestions();
     if (!$('#view-intercept').classList.contains('hidden')) await renderIntercept();
   } catch (e) { flash(e.message, true); }
+}
+
+function updatePathSuggestions() {
+  // Paths seen in history (most recent first), then known endpoints not already listed.
+  const seen = [];
+  for (const r of state.history) {
+    const p = pathOf(r.url);
+    if (p && !seen.includes(p)) seen.push(p);
+  }
+  const paths = [...seen, ...KNOWN_PATHS.filter((p) => !seen.includes(p))].slice(0, 60);
+  const list = $('#path-suggestions');
+  list.replaceChildren();
+  for (const p of paths) {
+    const opt = document.createElement('option');
+    opt.value = p;
+    list.appendChild(opt);
+  }
 }
 
 const LABELS = {
