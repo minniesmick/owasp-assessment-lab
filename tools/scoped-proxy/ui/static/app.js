@@ -455,6 +455,28 @@ $('#banner-off').onclick = () => setIntercept(false);
 $('#history-search').oninput = (e) => { state.filter.q = e.target.value; renderHistory(); };
 $('#hide-assets').checked = state.filter.hideAssets;
 $('#hide-assets').onchange = (e) => { state.filter.hideAssets = e.target.checked; saveFilter(); renderHistory(); };
+// Clear needs a second click within 3 s: history holds the evidence for findings.
+let clearTimer;
+$('#clear-history').onclick = async (e) => {
+  const btn = e.currentTarget;
+  if (!btn.dataset.armed) {
+    btn.dataset.armed = '1';
+    btn.textContent = 'Click again to clear';
+    clearTimer = setTimeout(() => { delete btn.dataset.armed; btn.textContent = 'Clear'; }, 3000);
+    return;
+  }
+  clearTimeout(clearTimer);
+  delete btn.dataset.armed;
+  btn.textContent = 'Clear';
+  try {
+    const d = await api('/api/history/clear', { method: 'POST', body: '{}' });
+    state.selectedId = null;
+    state.historyKey = '';
+    state.detailKey = '';
+    flash(`Cleared ${d.cleared} request${d.cleared === 1 ? '' : 's'} from memory.`);
+    await refresh();
+  } catch (x) { flash(x.message, true); }
+};
 $('#clear-filters').onclick = () => {
   state.filter = { q: '', hideAssets: false };
   $('#history-search').value = '';
