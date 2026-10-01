@@ -27,14 +27,12 @@ Written so work can continue in another session without the earlier conversation
   in the history list and the detail meta.
 - Local time (`HH:MM:SS`) in the detail meta and interceptor cards; full UTC ISO kept in the `title`.
 - Repeater path suggestions skip assets, so API paths are not pushed past the 60-item cap.
+- Readable JSON bodies (view only): the history detail body and the repeater response pretty-print JSON with a
+  Pretty / Raw toggle (`bodyBlock` / `asJson`), remembered like the asset filter. Interceptor editors untouched.
 
 ## To do
 
 ### Medium
-4. **Readable JSON bodies (view only).** In the history detail and the repeater response, when a body parses
-   as JSON, show it pretty-printed (`JSON.stringify(v, null, 2)`) with a "Pretty / Raw" toggle; remember the
-   choice like the asset filter. Never reformat the interceptor editors: that would change the request that
-   is forwarded.
 5. **Repeater response panel = detail panel.** Replace the single `<pre id="repeat-response">` with the same
    pieces as the history detail: status chip, duration, Headers / Body sections, the JSON view from item 4,
    and copy buttons ("Copy response body"). Reuse the detail CSS (`.detail-meta`, `.detail-body`, `.tabs`).

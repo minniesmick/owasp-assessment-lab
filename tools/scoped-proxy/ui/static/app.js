@@ -3,14 +3,21 @@
 // It is inserted with textContent or escaped with esc() — never as raw HTML.
 
 const $ = (s) => document.querySelector(s);
-const state = { history: [], selectedId: null, detailTab: 'request', detailKey: '', historyKey: '', filter: loadFilter() };
+const state = { history: [], selectedId: null, detailTab: 'request', detailKey: '', historyKey: '', filter: loadFilter(), pretty: loadPretty() };
 
-// Filter preference is a per-browser convenience only; storage may be unavailable.
+// Per-browser convenience preferences only; storage may be unavailable.
 function loadFilter() {
   try { return { q: '', hideAssets: localStorage.getItem('scoped-proxy.hideAssets') !== 'false' }; } catch { return { q: '', hideAssets: true }; }
 }
 function saveFilter() {
   try { localStorage.setItem('scoped-proxy.hideAssets', String(state.filter.hideAssets)); } catch { /* ignore */ }
+}
+function loadPretty() {
+  try { return localStorage.getItem('scoped-proxy.pretty') !== 'false'; } catch { return true; }
+}
+function setPretty(on) {
+  state.pretty = on;
+  try { localStorage.setItem('scoped-proxy.pretty', String(on)); } catch { /* ignore */ }
 }
 const TARGET = 'http://127.0.0.1:3000';
 
@@ -62,6 +69,35 @@ function parseHeaders(text) {
 }
 
 const headerText = (obj) => Object.entries(obj || {}).map(([k, v]) => `${k}: ${v}`).join('\n');
+
+// A body is "JSON" only if it is an object/array that parses; scalars are left alone.
+function asJson(text) {
+  if (typeof text !== 'string') return null;
+  const t = text.trim();
+  if (!t || (t[0] !== '{' && t[0] !== '[')) return null;
+  try { return JSON.stringify(JSON.parse(t), null, 2); } catch { return null; }
+}
+
+// Body viewer shared by the history detail and the repeater response (view only; never reformats what is sent).
+// Returns HTML with an escaped <pre>; if the body is JSON, a "Pretty / Raw" toggle (class js-pretty-toggle) is added.
+function bodyBlock(text, label = 'Body') {
+  const value = text || '';
+  const pretty = asJson(value);
+  const shown = pretty && state.pretty ? pretty : value;
+  const toggle = pretty
+    ? `<div class="tabs tabs-mini" role="tablist" aria-label="${esc(label)} format">`
+      + `<button class="js-pretty-toggle" role="tab" data-pretty="true" aria-selected="${state.pretty}">Pretty</button>`
+      + `<button class="js-pretty-toggle" role="tab" data-pretty="false" aria-selected="${!state.pretty}">Raw</button></div>`
+    : '';
+  return `<div class="body-head"><h3>${esc(label)}</h3>${toggle}</div><pre class="code-block">${esc(shown || '—')}</pre>`;
+}
+
+// Wire the Pretty/Raw buttons inside a just-rendered container to a re-render callback.
+function wirePrettyToggle(root, rerender) {
+  root.querySelectorAll('.js-pretty-toggle').forEach((b) => {
+    b.onclick = () => { setPretty(b.dataset.pretty === 'true'); rerender(); };
+  });
+}
 const stateClass = (s) => (/^[a-z]+$/.test(s) ? s : 'error');
 
 // Status chip, coloured by class: 2xx quiet, 3xx dim, 4xx accent outline, 5xx inverted. Errors matter most in testing.
@@ -212,7 +248,7 @@ async function copyText(text, label) {
 function renderDetail() {
   const d = detailEl;
   const r = selectedRecord();
-  const key = r ? JSON.stringify(r) + state.detailTab : 'empty';
+  const key = r ? JSON.stringify(r) + state.detailTab + state.pretty : 'empty';
   if (key === state.detailKey) return; // unchanged: keep the reader's scroll position during live refresh
   state.detailKey = key;
   if (!r) {
@@ -236,10 +272,11 @@ function renderDetail() {
     + `<button role="tab" data-tab="response" aria-selected="${tab === 'response'}">Response</button></div>`
     + `<button class="button ghost" id="send-to-repeat">Send to repeater</button></div>`
     + `<div class="detail-body" role="tabpanel"><h3>Headers</h3><pre class="code-block">${esc(headerText(headers) || '—')}</pre>`
-    + `<h3>Body</h3><pre class="code-block">${esc(body || '—')}</pre></div>`;
+    + bodyBlock(body, 'Body') + `</div>`;
   d.querySelectorAll('[data-tab]').forEach((b) => {
     b.onclick = () => { state.detailTab = b.dataset.tab; renderDetail(); };
   });
+  wirePrettyToggle(d, renderDetail);
   $('#detail-close').onclick = () => select(null);
   $('#copy-http').disabled = !path;
   $('#copy-curl').disabled = !path;
@@ -399,7 +436,9 @@ $('#send-repeat').onclick = async () => {
       body: JSON.stringify({ method: $('#repeat-method').value, path: $('#repeat-path').value.trim(), headers: parseHeaders($('#repeat-headers').value), body: $('#repeat-body').value }),
     });
     $('#repeat-meta').textContent = `${d.status_code || 'Error'} · ${d.url || ''}`;
-    $('#repeat-response').textContent = d.error || `HTTP ${d.status_code}\n\n${headerText(d.headers)}\n\n${d.body || ''}`;
+    const prettyBody = state.pretty && asJson(d.body);
+    $('#repeat-response').textContent = d.error
+      || `HTTP ${d.status_code}\n\n${headerText(d.headers)}\n\n${prettyBody || d.body || ''}`;
     flash(d.ok ? 'Repeater request complete.' : 'Repeater request rejected.', !d.ok);
     await refresh();
   } catch (e) { flash(e.message, true); }
