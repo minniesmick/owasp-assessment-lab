@@ -2,7 +2,7 @@
 
 [![English](https://img.shields.io/badge/lang-English-blue?style=for-the-badge)](README.md)
 [![Türkçe](https://img.shields.io/badge/dil-T%C3%BCrk%C3%A7e-red?style=for-the-badge)](ReadMeTr.md)
-[![Dashboard](https://img.shields.io/badge/Dashboard-live-6d5bd0?style=for-the-badge)](https://minniesmick.github.io/owasp-assessment-lab/)
+[![Dashboard](https://img.shields.io/badge/Dashboard-live-6d5bd0?style=for-the-badge&logo=githubpages&logoColor=white)](https://minniesmick.github.io/owasp-assessment-lab/)
 
 # OWASP Top 10 Security Assessment Lab
 
