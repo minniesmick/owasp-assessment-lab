@@ -31,13 +31,11 @@ Written so work can continue in another session without the earlier conversation
   Pretty / Raw toggle (`bodyBlock` / `asJson`), remembered like the asset filter. Interceptor editors untouched.
 - Collapsible Body in the history detail (chevron toggle, line/char count when collapsed, remembered like Pretty / Raw).
 - Repeater response panel matches the history detail: status chip, duration, Headers / Body (Pretty / Raw, collapse), "Copy response body" / "Copy raw response".
+- Interceptor shortcuts: `F` forwards and `D` drops the focused (or first) request; "Forward all" button; `<kbd>` hint.
 
 ## To do
 
 ### Medium
-6. **Interceptor keyboard shortcuts.** When the Interceptor view is active and focus is not in a field:
-   `F` forwards and `D` drops the first (or focused) card; add a "Forward all" button next to the toggle.
-   Show the shortcuts in a small hint like the history one (`.key-hint`, `<kbd>`).
 
 ### Optional
 7. **Clear history.** A "Clear" button in the history header. Needs a small endpoint, e.g.

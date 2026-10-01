@@ -139,3 +139,6 @@ kbd{font:600 11px var(--mono);color:var(--text-2);background:var(--surface-2);bo
 .repeat-url{min-width:0;word-break:break-all;font-size:12px}
 .repeat-actions{padding:0;margin:0 0 16px}
 .repeat-empty{margin:0;padding:34px 0;color:var(--muted);text-align:center}
+.intercept-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px 24px;flex-wrap:wrap}
+.intercept-head .button{min-height:36px}
+.intercept-head .button:disabled{opacity:.45;cursor:not-allowed}

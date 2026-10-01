@@ -319,6 +319,7 @@ async function renderIntercept() {
   const items = await api('/api/intercept');
   const list = $('#intercept-list');
   $('#intercept-empty').classList.toggle('hidden', items.length > 0);
+  $('#forward-all').disabled = items.length === 0;
   // Keyed update: keep cards that are still paused untouched, so edits in progress survive the live refresh.
   const ids = new Set(items.map((r) => r.id));
   [...list.children].forEach((card) => { if (!ids.has(card.dataset.id)) card.remove(); });
@@ -348,18 +349,34 @@ async function renderIntercept() {
   });
 }
 
+function sendIntercept(id, card, drop) {
+  const rid = encodeURIComponent(id);
+  if (drop) return api(`/api/intercept/${rid}/drop`, { method: 'POST', body: '{}' });
+  return api(`/api/intercept/${rid}/forward`, {
+    method: 'POST',
+    body: JSON.stringify({ headers: parseHeaders(card.querySelector('.edit-headers').value), body: card.querySelector('.edit-body').value }),
+  });
+}
+
 async function actIntercept(id, card, drop) {
   try {
-    const rid = encodeURIComponent(id);
-    if (drop) await api(`/api/intercept/${rid}/drop`, { method: 'POST', body: '{}' });
-    else await api(`/api/intercept/${rid}/forward`, {
-      method: 'POST',
-      body: JSON.stringify({ headers: parseHeaders(card.querySelector('.edit-headers').value), body: card.querySelector('.edit-body').value }),
-    });
+    await sendIntercept(id, card, drop);
     flash(drop ? 'Request dropped.' : 'Request forwarded.');
     await refresh();
   } catch (e) { flash(e.message, true); }
 }
+
+// Forward every paused request with whatever is currently typed in its editors.
+async function forwardAll() {
+  const cards = [...document.querySelectorAll('#intercept-list .intercept-card')];
+  try {
+    for (const card of cards) await sendIntercept(card.dataset.id, card, false);
+    flash(`Forwarded ${cards.length} request${cards.length === 1 ? '' : 's'}.`);
+  } catch (e) { flash(e.message, true); }
+  await refresh();
+  await renderIntercept().catch(() => {});
+}
+$('#forward-all').onclick = forwardAll;
 
 async function refresh() {
   try {
@@ -494,6 +511,17 @@ document.addEventListener('keydown', (e) => {
   const i = rows.findIndex((r) => r.id === state.selectedId);
   const next = i < 0 ? 0 : Math.min(Math.max(i + (e.key === 'ArrowDown' ? 1 : -1), 0), rows.length - 1);
   select(rows[next].id, { focus: true });
+});
+// Interceptor shortcuts: F forwards, D drops the card holding focus, else the first one (ignored while typing).
+document.addEventListener('keydown', (e) => {
+  if ($('#view-intercept').classList.contains('hidden') || e.altKey || e.ctrlKey || e.metaKey) return;
+  if (e.target.closest?.('input, textarea, select, [contenteditable]')) return;
+  const key = e.key.toLowerCase();
+  if (key !== 'f' && key !== 'd') return;
+  const card = e.target.closest?.('.intercept-card') || $('#intercept-list .intercept-card');
+  if (!card) return;
+  e.preventDefault();
+  actIntercept(card.dataset.id, card, key === 'd').then(() => renderIntercept()).catch(() => {});
 });
 // Re-place the detail (side panel vs inline row) and recount columns whenever a layout breakpoint is crossed.
 [wideLayout, window.matchMedia('(max-width: 1000px)'), window.matchMedia('(max-width: 640px)')]

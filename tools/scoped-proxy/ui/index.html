@@ -53,7 +53,10 @@
       </section>
 
       <section id="view-intercept" class="view hidden">
-        <div class="section-intro"><h2>Interceptor queue</h2><p>Turn interception on to pause Juice Shop requests before they are forwarded. Turning it off releases every paused request.</p></div>
+        <div class="section-intro intercept-head">
+          <div><h2>Interceptor queue</h2><p>Turn interception on to pause Juice Shop requests before they are forwarded. Turning it off releases every paused request. <span class="key-hint">Use <kbd>F</kbd> to forward and <kbd>D</kbd> to drop the focused (or first) request.</span></p></div>
+          <button class="button" id="forward-all" disabled>Forward all</button>
+        </div>
         <div id="intercept-list"></div>
         <div id="intercept-empty" class="empty">Interception is off or there are no paused requests.</div>
       </section>
