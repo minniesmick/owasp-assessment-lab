@@ -3,7 +3,7 @@
 // It is inserted with textContent or escaped with esc() — never as raw HTML.
 
 const $ = (s) => document.querySelector(s);
-const state = { history: [], selectedId: null, detailTab: 'request', detailKey: '', historyKey: '', filter: loadFilter(), pretty: loadPretty() };
+const state = { history: [], selectedId: null, detailTab: 'request', detailKey: '', historyKey: '', filter: loadFilter(), pretty: loadPretty(), bodyCollapsed: loadBodyCollapsed() };
 
 // Per-browser convenience preferences only; storage may be unavailable.
 function loadFilter() {
@@ -18,6 +18,13 @@ function loadPretty() {
 function setPretty(on) {
   state.pretty = on;
   try { localStorage.setItem('scoped-proxy.pretty', String(on)); } catch { /* ignore */ }
+}
+function loadBodyCollapsed() {
+  try { return localStorage.getItem('scoped-proxy.bodyCollapsed') === 'true'; } catch { return false; }
+}
+function setBodyCollapsed(on) {
+  state.bodyCollapsed = on;
+  try { localStorage.setItem('scoped-proxy.bodyCollapsed', String(on)); } catch { /* ignore */ }
 }
 const TARGET = 'http://127.0.0.1:3000';
 
@@ -89,11 +96,20 @@ function bodyBlock(text, label = 'Body') {
       + `<button class="js-pretty-toggle" role="tab" data-pretty="true" aria-selected="${state.pretty}">Pretty</button>`
       + `<button class="js-pretty-toggle" role="tab" data-pretty="false" aria-selected="${!state.pretty}">Raw</button></div>`
     : '';
-  return `<div class="body-head"><h3>${esc(label)}</h3>${toggle}</div><pre class="code-block">${esc(shown || '—')}</pre>`;
+  const open = !state.bodyCollapsed;
+  const lines = shown ? shown.split('\n').length : 0;
+  const size = `${lines} ${lines === 1 ? 'line' : 'lines'} · ${shown.length.toLocaleString('en-US')} chars`;
+  return `<div class="body-head"><button class="body-toggle js-body-toggle" aria-expanded="${open}" title="${open ? 'Collapse' : 'Expand'} ${esc(label.toLowerCase())}">`
+    + `<svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 6.5 8 10l3.5-3.5"/></svg><h3>${esc(label)}</h3></button>`
+    + `${open || !shown ? '' : `<span class="body-size">${size}</span>`}${open ? toggle : ''}</div>`
+    + (open ? `<pre class="code-block">${esc(shown || '—')}</pre>` : '');
 }
 
 // Wire the Pretty/Raw buttons inside a just-rendered container to a re-render callback.
 function wirePrettyToggle(root, rerender) {
+  root.querySelectorAll('.js-body-toggle').forEach((b) => {
+    b.onclick = () => { setBodyCollapsed(b.getAttribute('aria-expanded') === 'true'); rerender(); };
+  });
   root.querySelectorAll('.js-pretty-toggle').forEach((b) => {
     b.onclick = () => { setPretty(b.dataset.pretty === 'true'); rerender(); };
   });
@@ -248,7 +264,7 @@ async function copyText(text, label) {
 function renderDetail() {
   const d = detailEl;
   const r = selectedRecord();
-  const key = r ? JSON.stringify(r) + state.detailTab + state.pretty : 'empty';
+  const key = r ? JSON.stringify(r) + state.detailTab + state.pretty + state.bodyCollapsed : 'empty';
   if (key === state.detailKey) return; // unchanged: keep the reader's scroll position during live refresh
   state.detailKey = key;
   if (!r) {

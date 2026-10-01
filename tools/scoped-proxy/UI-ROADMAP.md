@@ -29,6 +29,7 @@ Written so work can continue in another session without the earlier conversation
 - Repeater path suggestions skip assets, so API paths are not pushed past the 60-item cap.
 - Readable JSON bodies (view only): the history detail body and the repeater response pretty-print JSON with a
   Pretty / Raw toggle (`bodyBlock` / `asJson`), remembered like the asset filter. Interceptor editors untouched.
+- Collapsible Body in the history detail (chevron toggle, line/char count when collapsed, remembered like Pretty / Raw).
 
 ## To do
 
