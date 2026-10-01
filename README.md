@@ -50,6 +50,7 @@ The dashboard UI (`dashboard/`) is maintained by Alper — send suggestions to h
 | `dashboard/` | Assessment dashboard (web UI) — live at https://minniesmick.github.io/owasp-assessment-lab/ |
 | `team.json` | Team roster: names, GitHub usernames, owned OWASP categories |
 | `data/` | Juice Shop challenge catalog snapshot (for the dashboard) |
+| `tools/scoped-proxy/` | Intercepting proxy whose scope is fixed in code to the local Juice Shop (see its README) |
 
 ## Setup
 Requirements: **Docker Desktop**, **Python 3**, a browser with DevTools (Chrome / Firefox).

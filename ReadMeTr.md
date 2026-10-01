@@ -51,6 +51,7 @@ Arayüzle ilgili öneriler için Alper'e yazın veya bir Issue açın — ayrın
 | `dashboard/` | Değerlendirme paneli (web arayüzü) — canlı: https://minniesmick.github.io/owasp-assessment-lab/ |
 | `team.json` | Ekip listesi: isimler, GitHub kullanıcı adları, sorumlu OWASP kategorileri |
 | `data/` | Juice Shop challenge kataloğu (dashboard için) |
+| `tools/scoped-proxy/` | Kapsamı kodda lokal Juice Shop'a sabitlenmiş intercepting proxy (kendi README'sine bakın) |
 
 ## Kurulum
 Gerekenler: **Docker Desktop**, **Python 3**, DevTools'lu bir tarayıcı (Chrome / Firefox).

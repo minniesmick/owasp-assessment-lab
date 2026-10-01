@@ -49,6 +49,7 @@ and screenshots should be cropped and legible.
 | `README.md`, `ReadMeTr.md`, `BASLANGIC.md` | Project overview (EN/TR) and beginner guide (TR) |
 | `dashboard/` | React + Vite dashboard, built from the files above by `scripts/build_dashboard_data.py`; see `dashboard/README.md`, `PRODUCT.md`, `.design/dashboard/DESIGN_BRIEF.md` |
 | `team.json`, `data/` | Team roster and Juice Shop challenge catalog used by the dashboard |
+| `tools/scoped-proxy/` | Alper's scope-pinned intercepting proxy. Never widen its scope (target, bind address); see its README. |
 
 `README.md` files inside content folders are folder guides, not findings.
 

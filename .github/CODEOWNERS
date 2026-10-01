@@ -4,3 +4,5 @@
 /.github/workflows/dashboard.yml @minniesmick
 /team.json                       @minniesmick
 /data/                           @minniesmick
+/tools/                          @minniesmick
+/.github/workflows/scoped-proxy.yml @minniesmick

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="referrer" content="no-referrer">
+  <title>Scoped Proxy · Juice Shop lab</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">↔</span><span>Scoped Proxy</span></div>
+    <div class="scope-badge"><span class="dot"></span> SCOPE PINNED · 127.0.0.1:3000</div>
+  </header>
+  <div class="app-shell">
+    <aside class="rail" aria-label="Application navigation">
+      <div class="rail-heading">WORKSPACE</div>
+      <button class="nav-button active" data-view="history"><span>▤</span> HTTP history</button>
+      <button class="nav-button" data-view="intercept"><span>Ⅱ</span> Interceptor <b id="pending-count">0</b></button>
+      <button class="nav-button" data-view="repeater"><span>↻</span> Repeater</button>
+      <div class="rail-spacer"></div>
+      <div class="rail-note"><strong>Safety boundary</strong><p>The proxy can only reach the local Juice Shop. The destination is fixed in code; anything else is refused before a connection is opened.</p></div>
+    </aside>
+    <main class="main-content">
+      <section class="page-header">
+        <div><p class="eyebrow">LOCAL LAB</p><h1 id="page-title">HTTP history</h1><p id="page-subtitle">Inspect requests and responses captured through the local proxy.</p></div>
+        <div class="header-actions"><label class="switch-label"><span>Intercept requests</span><input id="intercept-toggle" type="checkbox"><span class="switch" aria-hidden="true"></span></label><button class="button ghost" id="refresh-button">Refresh</button></div>
+      </section>
+      <div id="flash" class="flash" role="status" aria-live="polite"></div>
+
+      <section id="view-history" class="view">
+        <div class="stats-row"><div><span>Captured</span><strong id="stat-captured">0</strong></div><div><span>Forwarded</span><strong id="stat-forwarded">0</strong></div><div><span>Blocked</span><strong id="stat-blocked">0</strong></div><div><span>Paused</span><strong id="stat-paused">0</strong></div></div>
+        <div class="panel table-panel">
+          <div class="panel-head"><div><h2>Request stream</h2><p>Newest traffic appears first.</p></div><span class="live-label"><span class="dot"></span> LIVE</span></div>
+          <div class="table-wrap"><table><thead><tr><th>Method</th><th>URL</th><th>Status</th><th>State</th><th>Time</th></tr></thead><tbody id="history-body"></tbody></table></div>
+          <div id="history-empty" class="empty">No traffic yet. Open <code id="proxy-url">http://127.0.0.1:8080</code> in your browser — Juice Shop loads through the proxy.</div>
+        </div>
+        <div id="history-detail" class="panel detail-panel hidden"></div>
+      </section>
+
+      <section id="view-intercept" class="view hidden">
+        <div class="section-intro"><h2>Interceptor queue</h2><p>Turn interception on to pause Juice Shop requests before they are forwarded. Turning it off releases every paused request.</p></div>
+        <div id="intercept-list"></div>
+        <div id="intercept-empty" class="empty">Interception is off or there are no paused requests.</div>
+      </section>
+
+      <section id="view-repeater" class="view hidden">
+        <div class="section-intro"><h2>Repeater</h2><p>Load a history item, make a deliberate change, and send it. Only the path is editable — the host is fixed.</p></div>
+        <div class="repeater-grid">
+          <div class="panel form-panel">
+            <label>Method<select id="repeat-method"><option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option><option>DELETE</option><option>HEAD</option><option>OPTIONS</option></select></label>
+            <label>Path<span class="path-field"><span class="path-prefix">http://127.0.0.1:3000</span><input id="repeat-path" placeholder="/rest/products/search?q=apple" spellcheck="false" autocomplete="off"></span></label>
+            <label>Headers <span class="label-note">one Name: Value per line</span><textarea id="repeat-headers" rows="8" spellcheck="false"></textarea></label>
+            <label>Body<textarea id="repeat-body" rows="8" spellcheck="false"></textarea></label>
+            <button class="button primary" id="send-repeat">Send request</button>
+          </div>
+          <div class="panel response-panel">
+            <div class="panel-head"><div><h2>Raw response</h2><p id="repeat-meta">Waiting for a request.</p></div></div>
+            <pre id="repeat-response" class="code-block">Select a history item or enter a Juice Shop path.</pre>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="/static/app.js"></script>
+</body>
+</html>

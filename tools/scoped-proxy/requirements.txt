@@ -1,0 +1,7 @@
+# Runtime dependencies (pinned, tested with Python 3.11)
+mitmproxy==11.0.2
+fastapi==0.142.2
+uvicorn==0.54.0
+httpx==0.28.1
+# Tests
+pytest==9.1.1
