@@ -175,22 +175,42 @@ function renderDetail() {
   };
 }
 
+// Size a textarea to its rendered content (long header lines wrap), between min and max pixels.
+function fitHeight(ta, min, max) {
+  ta.style.height = 'auto';
+  ta.style.height = `${Math.min(Math.max(ta.scrollHeight + 2, min), max)}px`;
+}
+
 async function renderIntercept() {
   const items = await api('/api/intercept');
   const list = $('#intercept-list');
-  list.replaceChildren();
   $('#intercept-empty').classList.toggle('hidden', items.length > 0);
-  items.forEach((r) => {
+  // Keyed update: keep cards that are still paused untouched, so edits in progress survive the live refresh.
+  const ids = new Set(items.map((r) => r.id));
+  [...list.children].forEach((card) => { if (!ids.has(card.dataset.id)) card.remove(); });
+  const shown = new Set([...list.children].map((card) => card.dataset.id));
+  items.filter((r) => !shown.has(r.id)).forEach((r) => {
     const card = document.createElement('article');
     card.className = 'intercept-card';
-    card.innerHTML = `<header><div><span class="state state-paused">PAUSED</span><h3>${esc(r.method)} ${esc(r.url)}</h3></div>`
-      + `<span class="label-note">${esc(r.created_at)}</span></header>`
-      + `<div class="edit-grid"><label>Headers<textarea class="edit-headers" rows="8">${esc(headerText(r.request_headers))}</textarea></label>`
-      + `<label>Body<textarea class="edit-body" rows="8">${esc(r.request_body || '')}</textarea></label></div>`
+    card.dataset.id = r.id;
+    const path = pathOf(r.url) || r.url;
+    card.innerHTML = `<header><div class="intercept-title"><span class="state state-paused">paused</span>`
+      + `<span class="detail-method">${esc(r.method)}</span><code class="detail-path" title="${esc(r.url)}">${esc(path)}</code></div>`
+      + `<span class="intercept-time">${esc(r.created_at)}</span></header>`
+      + `<label class="edit-field"><span class="edit-label">Headers <span class="label-note">one Name: Value per line</span></span>`
+      + `<textarea class="edit-headers" spellcheck="false" autocomplete="off">${esc(headerText(r.request_headers))}</textarea></label>`
+      + `<label class="edit-field"><span class="edit-label">Body${r.request_body ? '' : ' <span class="label-note">empty</span>'}</span>`
+      + `<textarea class="edit-body" spellcheck="false" autocomplete="off">${esc(r.request_body || '')}</textarea></label>`
       + `<div class="intercept-actions"><button class="button primary forward">Forward request</button><button class="button danger drop">Drop request</button></div>`;
+    const headers = card.querySelector('.edit-headers');
+    const body = card.querySelector('.edit-body');
+    headers.oninput = () => fitHeight(headers, 180, 560);
+    body.oninput = () => fitHeight(body, 96, 560);
     card.querySelector('.forward').onclick = () => actIntercept(r.id, card, false);
     card.querySelector('.drop').onclick = () => actIntercept(r.id, card, true);
     list.appendChild(card);
+    fitHeight(headers, 180, 560); // measure after it is in the document
+    fitHeight(body, 96, 560);
   });
 }
 
@@ -293,5 +313,13 @@ document.addEventListener('keydown', (e) => {
 // Re-place the detail (side panel vs inline row) and recount columns whenever a layout breakpoint is crossed.
 [wideLayout, window.matchMedia('(max-width: 1000px)'), window.matchMedia('(max-width: 640px)')]
   .forEach((mq) => mq.addEventListener('change', () => { state.detailKey = ''; renderHistory(); }));
+let refitTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(refitTimer);
+  refitTimer = setTimeout(() => {
+    document.querySelectorAll('.edit-headers').forEach((t) => fitHeight(t, 180, 560));
+    document.querySelectorAll('.edit-body').forEach((t) => fitHeight(t, 96, 560));
+  }, 150);
+});
 refresh();
 setInterval(refresh, 2500);
