@@ -248,7 +248,7 @@ function asCurl(r) {
   return parts.join(' \\\n  ');
 }
 
-async function copyText(text, label) {
+async function copyText(text, label, note = ' Browser-only headers (User-Agent, sec-*, …) were left out.') {
   try {
     await navigator.clipboard.writeText(text);
   } catch {
@@ -258,7 +258,7 @@ async function copyText(text, label) {
     document.execCommand('copy');
     ta.remove();
   }
-  flash(`Copied as ${label}. Browser-only headers (User-Agent, sec-*, …) were left out.`);
+  flash(`Copied ${label}.${note}`);
 }
 
 function renderDetail() {
@@ -296,8 +296,8 @@ function renderDetail() {
   $('#detail-close').onclick = () => select(null);
   $('#copy-http').disabled = !path;
   $('#copy-curl').disabled = !path;
-  $('#copy-http').onclick = () => copyText(asHttp(r), 'HTTP');
-  $('#copy-curl').onclick = () => copyText(asCurl(r), 'curl');
+  $('#copy-http').onclick = () => copyText(asHttp(r), 'as HTTP');
+  $('#copy-curl').onclick = () => copyText(asCurl(r), 'as curl');
   const button = $('#send-to-repeat');
   button.disabled = !path;
   button.onclick = () => {
@@ -445,16 +445,39 @@ $('#clear-filters').onclick = () => {
   saveFilter();
   renderHistory();
 };
+// Repeater response: same pieces as the history detail (status chip, duration, Headers, Body, copy buttons).
+function renderRepeat() {
+  const d = state.repeat;
+  const el = $('#repeat-result');
+  if (!d) {
+    el.innerHTML = '<p class="repeat-empty">Select a history item or enter a Juice Shop path, then send.</p>';
+    return;
+  }
+  const meta = `<div class="repeat-meta">${statusChip(d.status_code)}<span>${esc(d.ms)} ms</span>`
+    + `<code class="repeat-url" title="${esc(d.url || '')}">${esc(d.url ? new URL(d.url).pathname + new URL(d.url).search : d.path)}</code></div>`;
+  if (d.error) {
+    el.innerHTML = `${meta}<h3>Error</h3><pre class="code-block">${esc(d.error)}</pre>`;
+    return;
+  }
+  el.innerHTML = `${meta}<div class="detail-actions repeat-actions">`
+    + `<button class="button small" id="copy-resp-body"${d.body ? '' : ' disabled'}>Copy response body</button>`
+    + `<button class="button small" id="copy-resp-raw">Copy raw response</button></div>`
+    + `<h3>Headers</h3><pre class="code-block">${esc(headerText(d.headers) || '—')}</pre>`
+    + bodyBlock(d.body, 'Body');
+  wirePrettyToggle(el, renderRepeat);
+  $('#copy-resp-body').onclick = () => copyText(d.body, 'response body', '');
+  $('#copy-resp-raw').onclick = () => copyText(`HTTP ${d.status_code}\n${headerText(d.headers)}\n\n${d.body || ''}`, 'raw response', '');
+}
+renderRepeat();
 $('#send-repeat').onclick = async () => {
+  const t0 = performance.now();
   try {
     const d = await api('/api/repeater', {
       method: 'POST',
       body: JSON.stringify({ method: $('#repeat-method').value, path: $('#repeat-path').value.trim(), headers: parseHeaders($('#repeat-headers').value), body: $('#repeat-body').value }),
     });
-    $('#repeat-meta').textContent = `${d.status_code || 'Error'} · ${d.url || ''}`;
-    const prettyBody = state.pretty && asJson(d.body);
-    $('#repeat-response').textContent = d.error
-      || `HTTP ${d.status_code}\n\n${headerText(d.headers)}\n\n${prettyBody || d.body || ''}`;
+    state.repeat = { ...d, ms: Math.round(performance.now() - t0), path: $('#repeat-path').value.trim() };
+    renderRepeat();
     flash(d.ok ? 'Repeater request complete.' : 'Repeater request rejected.', !d.ok);
     await refresh();
   } catch (e) { flash(e.message, true); }

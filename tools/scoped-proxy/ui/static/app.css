@@ -131,3 +131,11 @@ kbd{font:600 11px var(--mono);color:var(--text-2);background:var(--surface-2);bo
 .body-toggle[aria-expanded="false"] .icon{transform:rotate(-90deg)}
 .body-size{margin-right:auto;color:var(--dim);font-size:11px;font-variant-numeric:tabular-nums}
 .detail-body .body-head:last-child{margin-bottom:0}
+.response-panel{padding:0;min-height:0}
+.response-panel .code-block{min-height:0;margin-top:0;max-height:420px}
+.response-panel .detail-body h3{margin-top:2px}
+.response-panel .detail-body h3+pre{max-height:200px}
+.repeat-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin-bottom:14px;color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+.repeat-url{min-width:0;word-break:break-all;font-size:12px}
+.repeat-actions{padding:0;margin:0 0 16px}
+.repeat-empty{margin:0;padding:34px 0;color:var(--muted);text-align:center}
