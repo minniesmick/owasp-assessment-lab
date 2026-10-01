@@ -9,21 +9,21 @@
 </head>
 <body>
   <header class="topbar">
-    <div class="brand"><span class="brand-mark">↔</span><span>Scoped Proxy</span></div>
+    <div class="brand"><span class="brand-mark"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8h11"/><path d="M5 5.5 2.5 8 5 10.5"/><path d="M11 5.5 13.5 8 11 10.5"/></svg></span><span>Scoped Proxy</span></div>
     <div class="scope-badge"><span class="dot"></span> SCOPE PINNED · 127.0.0.1:3000</div>
   </header>
   <div class="app-shell">
     <aside class="rail" aria-label="Application navigation">
       <div class="rail-heading">WORKSPACE</div>
-      <button class="nav-button active" data-view="history"><span>▤</span> HTTP history</button>
-      <button class="nav-button" data-view="intercept"><span>Ⅱ</span> Interceptor <b id="pending-count">0</b></button>
-      <button class="nav-button" data-view="repeater"><span>↻</span> Repeater</button>
+      <button class="nav-button active" data-view="history"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 4h10"/><path d="M3 8h10"/><path d="M3 12h6.5"/></svg> HTTP history</button>
+      <button class="nav-button" data-view="intercept"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="3.5" width="2.5" height="9" rx=".6"/><rect x="9.5" y="3.5" width="2.5" height="9" rx=".6"/></svg> Interceptor <b id="pending-count">0</b></button>
+      <button class="nav-button" data-view="repeater"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8a5 5 0 1 1-1.46-3.54"/><path d="M13 2.75v2.5h-2.5"/></svg> Repeater</button>
       <div class="rail-spacer"></div>
       <div class="rail-note"><strong>Safety boundary</strong><p>The proxy can only reach the local Juice Shop. The destination is fixed in code; anything else is refused before a connection is opened.</p></div>
     </aside>
     <main class="main-content">
       <section class="page-header">
-        <div><p class="eyebrow">LOCAL LAB</p><h1 id="page-title">HTTP history</h1><p id="page-subtitle">Inspect requests and responses captured through the local proxy.</p></div>
+        <div><h1 id="page-title">HTTP history</h1><p id="page-subtitle">Inspect requests and responses captured through the local proxy.</p></div>
         <div class="header-actions"><label class="switch-label"><span>Intercept requests</span><input id="intercept-toggle" type="checkbox"><span class="switch" aria-hidden="true"></span></label><button class="button ghost" id="refresh-button">Refresh</button></div>
       </section>
       <div id="flash" class="flash" role="status" aria-live="polite"></div>
