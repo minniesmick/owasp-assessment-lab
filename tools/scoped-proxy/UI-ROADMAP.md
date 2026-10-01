@@ -1,0 +1,65 @@
+# Scoped Proxy UI — roadmap
+
+Open UI improvements for the proxy dashboard (`ui/index.html`, `ui/static/app.css`, `ui/static/app.js`).
+Written so work can continue in another session without the earlier conversation.
+
+## Constraints (keep these)
+- **UI only.** None of the items below may touch scope enforcement (`scoped_proxy/scope.py`, `addon.py`,
+  `repeater_url`, `_pin_request`). Item 7 is the only one that needs a backend change; keep it scope-neutral.
+- **Captured traffic is untrusted** (Juice Shop responses contain attack payloads): insert it with
+  `textContent` or `esc()`, never as raw HTML.
+- **CSP** (`web.py`, `SECURITY_HEADERS`): `script-src 'self'`, `style-src 'self'`, no inline `<style>`/`<script>`,
+  no external fonts or CDNs. Setting `element.style` from JS is fine.
+- **Visual system:** pure black `#000`, neutral grays, one accent `--accent: #f4b860` (tokens at the top of
+  `app.css`). No other hues. IBM Plex Sans / Plex Mono are self-hosted in `ui/static/fonts/`. Icons are inline
+  SVG with `class="icon"` (16×16, stroke 1.5). Functional text ≥ 11px. WCAG AA contrast.
+- **History stays in memory only.** Do not persist captured requests to disk: they contain session tokens
+  and cookies.
+
+## Done (October 2026)
+- Black / gray / yellow theme; IBM Plex; SVG icons; no page overflow at 800–1150px.
+- HTTP history split view: side detail panel from 1180px, inline under the selected row below that;
+  selection survives the 2.5s live refresh; ↑/↓ and Esc; Request / Response tabs; path-only column.
+- Interceptor: styled, content-sized editors; cards keyed by id so edits survive the live refresh.
+- History filter ("Hide assets", on by default, remembered) and search; "Copy as HTTP" / "Copy as curl"
+  for findings; yellow intercept banner on every screen.
+
+## To do
+
+### Small
+1. **Status code classes.** Today every status uses the same gray `.status` chip. Add a class from the code
+   in `renderHistory()` and `renderDetail()` (e.g. `status-2xx` … `status-5xx`), styled within the palette:
+   2xx quiet gray (as now), 3xx dimmer, 4xx yellow outline (`--accent-line` border, `--accent` text),
+   5xx inverted (`--text` background, black text). Errors matter most in testing (A10 Mishandling of
+   Exceptional Conditions).
+2. **Local time.** `created_at` is shown raw as UTC ISO (`2026-10-01T02:10:11+00:00`). Show local `HH:MM:SS`
+   in the detail meta, interceptor cards and anywhere else it appears; keep the full ISO value in `title`.
+3. **Repeater path suggestions without assets.** `updatePathSuggestions()` still offers image/JS paths, which
+   fill the 60-item cap and push API paths out. Skip records where `isAsset(r)` is true (the helper already
+   exists for the history filter).
+
+### Medium
+4. **Readable JSON bodies (view only).** In the history detail and the repeater response, when a body parses
+   as JSON, show it pretty-printed (`JSON.stringify(v, null, 2)`) with a "Pretty / Raw" toggle; remember the
+   choice like the asset filter. Never reformat the interceptor editors: that would change the request that
+   is forwarded.
+5. **Repeater response panel = detail panel.** Replace the single `<pre id="repeat-response">` with the same
+   pieces as the history detail: status chip, duration, Headers / Body sections, the JSON view from item 4,
+   and copy buttons ("Copy response body"). Reuse the detail CSS (`.detail-meta`, `.detail-body`, `.tabs`).
+6. **Interceptor keyboard shortcuts.** When the Interceptor view is active and focus is not in a field:
+   `F` forwards and `D` drops the first (or focused) card; add a "Forward all" button next to the toggle.
+   Show the shortcuts in a small hint like the history one (`.key-hint`, `<kbd>`).
+
+### Optional
+7. **Clear history.** A "Clear" button in the history header. Needs a small endpoint, e.g.
+   `POST /api/history/clear` in `web.py` that empties the in-memory `History` store (same CSRF rules as the
+   other POST routes: same-origin `Origin`, JSON content type). Does not change scope.
+
+## How to test without touching real traffic
+- Start Juice Shop (`docker compose up -d`) and the proxy (`start.bat` / `./start.sh`); open
+  http://127.0.0.1:8080 to generate traffic, the UI is at http://127.0.0.1:8765.
+- Check 1440px, ~1000px and 375px widths: no horizontal page scroll, no console errors.
+- Interceptor layouts can be checked without pausing real requests by stubbing the list in the browser console:
+  override `window.fetch` for `GET /api/intercept` to return two fake records, then open the Interceptor view.
+  Reload the page afterwards.
+- Before committing: `python scripts/validate.py` from the repo root.
