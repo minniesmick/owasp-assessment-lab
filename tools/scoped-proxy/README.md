@@ -23,6 +23,11 @@ Then:
    Turning it off releases everything that is paused.
 4. *Send to repeater* re-sends a request with changes; only the **path** is editable, the host is fixed.
 
+> [!IMPORTANT]
+> Only traffic sent to **:8080** passes through the proxy. A tab opened at `http://127.0.0.1:3000` talks to Juice Shop
+> directly, so nothing from it appears in *HTTP history*.
+> The browser treats `:3000` and `:8080` as different sites: log in again on `:8080` (sessions, basket and local storage are not shared).
+
 Ports can be changed with `SCOPED_PROXY_PORT` / `SCOPED_DASHBOARD_PORT` (1024–65535, never 3000).
 Hosts and the target cannot be changed. History lives in memory only and is gone when the tool stops.
 

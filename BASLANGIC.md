@@ -82,6 +82,17 @@ Burp Suite / ZAP şimdilik gerekmez. Tarayıcının F12 (DevTools) aracıyla ba�
 - Sadece **kendi OWASP kategorilerinden** challenge çöz ([README'deki Ekip tablosu](ReadMeTr.md#ekip)).
 - Bir açık bulduğunda **hemen ekran görüntüsü al.** Juice Shop yeniden başlayınca her şey sıfırlanır.
 
+> 🔀 **İstekleri yakalaman/değiştirmen gerekirse (Scoped Proxy):** `tools/scoped-proxy/` içindeki `start.bat`'a çift tıkla
+> (Mac: `./start.sh`, Python 3.11 gerekir). Sonra:
+> | Adres | Ne işe yarar |
+> |---|---|
+> | http://127.0.0.1:8080 | Juice Shop'u **proxy üzerinden** açar. Test ederken bunu kullan. |
+> | http://127.0.0.1:8765 | Proxy ekranı: HTTP history, Interceptor, Repeater |
+> | http://127.0.0.1:3000 | Juice Shop'un kendisi. **Proxy'yi atlar**, buradaki istekler history'de görünmez. |
+>
+> Tarayıcı 3000 ile 8080'i ayrı site sayar: 8080'de **yeniden giriş yapman** gerekir, sepet ve oturum taşınmaz.
+> Ayrıntılar: [tools/scoped-proxy/README.md](tools/scoped-proxy/README.md).
+
 **Bitirirken:**
 1. İlerlemeni kaydet (komut penceresinde):
    ```
