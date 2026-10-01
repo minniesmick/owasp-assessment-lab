@@ -3,7 +3,7 @@
 // It is inserted with textContent or escaped with esc() — never as raw HTML.
 
 const $ = (s) => document.querySelector(s);
-const state = { history: [], selected: null };
+const state = { history: [], selectedId: null, detailTab: 'request', detailKey: '', historyKey: '' };
 const TARGET = 'http://127.0.0.1:3000';
 
 // Common Juice Shop endpoints offered in the repeater path list, on top of paths actually seen in history.
@@ -63,43 +63,108 @@ function pathOf(url) {
   } catch { return ''; }
 }
 
+// Split view: on wide screens the detail panel sits beside the list; below this width it opens under the selected row.
+const wideLayout = window.matchMedia('(min-width: 1180px)');
+const ICON_CLOSE = '<svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8"/><path d="M12 4l-8 8"/></svg>';
+
+const detailEl = document.getElementById('history-detail'); // moved between the side slot and the inline row
+const selectedRecord = () => state.history.find((r) => r.id === state.selectedId) || null;
+
 function renderHistory() {
   const body = $('#history-body');
+  const rowHadFocus = !!document.activeElement?.closest?.('#history-body tr');
+  const focusInDetail = detailEl.contains(document.activeElement) ? document.activeElement : null;
+  if (state.selectedId && !selectedRecord()) state.selectedId = null; // gone after a proxy restart
+  $('#detail-slot').appendChild(detailEl); // rescue it before the rows (and an inline detail row) are removed
   body.replaceChildren();
   $('#history-empty').classList.toggle('hidden', state.history.length > 0);
   const counts = {};
-  state.history.forEach((r) => {
+  state.history.forEach((r, index) => {
     counts[r.state] = (counts[r.state] || 0) + 1;
+    const selected = r.id === state.selectedId;
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${esc(r.method)}${r.source === 'repeater' ? '<span class="source-tag">rep</span>' : ''}</td>`
-      + `<td title="${esc(r.url)}">${esc(r.url)}</td>`
-      + `<td><span class="status">${esc(r.status_code ?? '—')}</span></td>`
-      + `<td><span class="state state-${stateClass(r.state)}">${esc(r.state)}</span></td>`
-      + `<td>${esc(r.duration_ms ?? '—')} ms</td>`;
-    tr.onclick = () => showDetail(r);
+    tr.dataset.id = r.id;
+    tr.className = selected ? 'selected' : '';
+    tr.setAttribute('aria-selected', String(selected));
+    tr.tabIndex = selected || (!state.selectedId && index === 0) ? 0 : -1; // roving tabindex: one tab stop for the list
+    tr.innerHTML = `<td class="col-method">${esc(r.method)}${r.source === 'repeater' ? '<span class="source-tag">rep</span>' : ''}</td>`
+      + `<td class="col-path" title="${esc(r.url)}">${esc(pathOf(r.url) || r.url)}</td>`
+      + `<td class="col-status"><span class="status">${esc(r.status_code ?? '—')}</span></td>`
+      + `<td class="col-state"><span class="state state-${stateClass(r.state)}">${esc(r.state)}</span></td>`
+      + `<td class="col-time">${esc(r.duration_ms ?? '—')} ms</td>`;
+    tr.onclick = () => select(r.id === state.selectedId ? null : r.id);
     body.appendChild(tr);
+    if (selected && !wideLayout.matches) {
+      const row = document.createElement('tr');
+      row.className = 'detail-row';
+      const cell = document.createElement('td');
+      cell.colSpan = visibleColumns(); // hidden columns on narrow screens must not become phantom columns
+      row.appendChild(cell);
+      body.appendChild(row);
+    }
   });
   $('#stat-captured').textContent = state.history.length;
   $('#stat-forwarded').textContent = counts.forwarded || 0;
   $('#stat-paused').textContent = counts.paused || 0;
+  placeDetail();
+  renderDetail();
+  if (focusInDetail && detailEl.contains(focusInDetail)) focusInDetail.focus({ preventScroll: true });
+  else if (rowHadFocus) currentRow()?.focus({ preventScroll: true });
 }
 
-function showDetail(r) {
-  state.selected = r;
-  const d = $('#history-detail');
-  d.classList.remove('hidden');
-  const statusLine = r.status_code
-    ? `<span class="status">${esc(r.status_code)}</span> ${esc(r.duration_ms ?? '—')} ms`
-    : `<span class="state state-${stateClass(r.state)}">${esc(r.state)}</span>`;
-  d.innerHTML = `<div class="panel-head detail-head"><div><h2>${esc(r.method)} ${esc(r.url)}</h2>`
-    + `<p>${statusLine} · ${esc(r.created_at)}</p></div>`
-    + `<button class="button ghost" id="send-to-repeat">Send to repeater</button></div>`
-    + `<div class="detail-grid"><div><h3>Request headers</h3><pre class="code-block">${esc(headerText(r.request_headers) || '—')}</pre>`
-    + `<h3 class="detail-gap">Request body</h3><pre class="code-block">${esc(r.request_body || '—')}</pre></div>`
-    + `<div><h3>Response ${r.status_code ? `· HTTP ${esc(r.status_code)}` : ''} headers</h3><pre class="code-block">${esc(headerText(r.response_headers) || '—')}</pre>`
-    + `<h3 class="detail-gap">Response body</h3><pre class="code-block">${esc(r.response_body || r.error || '—')}</pre></div></div>`;
-  const button = $('#send-to-repeat');
+const visibleColumns = () => [...document.querySelectorAll('.history-table thead th')].filter((th) => getComputedStyle(th).display !== 'none').length;
+
+const currentRow = () => (state.selectedId ? $(`#history-body tr[data-id="${CSS.escape(state.selectedId)}"]`) : null);
+
+function placeDetail() {
+  const cell = $('#history-body .detail-row td');
+  if (cell) cell.appendChild(detailEl);
+  detailEl.classList.toggle('hidden', !wideLayout.matches && !state.selectedId);
+}
+
+function select(id, { focus = false } = {}) {
+  state.selectedId = id;
+  state.detailKey = '';
+  renderHistory();
+  const row = currentRow();
+  if (row) {
+    row.scrollIntoView({ block: 'nearest' });
+    if (focus) row.focus({ preventScroll: true });
+  }
+  detailEl.scrollTop = 0;
+}
+
+function renderDetail() {
+  const d = detailEl;
+  const r = selectedRecord();
+  const key = r ? JSON.stringify(r) + state.detailTab : 'empty';
+  if (key === state.detailKey) return; // unchanged: keep the reader's scroll position during live refresh
+  state.detailKey = key;
+  if (!r) {
+    d.innerHTML = '<div class="detail-empty"><h2>No request selected</h2><p>Select a request in the stream to see its headers and body here.</p></div>';
+    return;
+  }
   const path = pathOf(r.url);
+  const tab = state.detailTab;
+  const headers = tab === 'request' ? r.request_headers : r.response_headers;
+  const body = tab === 'request' ? r.request_body : (r.response_body || r.error);
+  d.innerHTML = `<div class="detail-head"><div class="detail-title"><span class="detail-method">${esc(r.method)}</span>`
+    + `<code class="detail-path" title="${esc(r.url)}">${esc(path || r.url)}</code></div>`
+    + `<button class="icon-button" id="detail-close" aria-label="Close details" title="Close (Esc)">${ICON_CLOSE}</button></div>`
+    + `<div class="detail-meta">${r.status_code ? `<span class="status">${esc(r.status_code)}</span>` : ''}`
+    + `<span class="state state-${stateClass(r.state)}">${esc(r.state)}</span>`
+    + `<span>${esc(r.duration_ms ?? '—')} ms</span><span>${esc(r.created_at)}</span></div>`
+    + `<div class="detail-toolbar"><div class="tabs" role="tablist" aria-label="Message">`
+    + `<button role="tab" data-tab="request" aria-selected="${tab === 'request'}">Request</button>`
+    + `<button role="tab" data-tab="response" aria-selected="${tab === 'response'}">Response</button></div>`
+    + `<button class="button ghost" id="send-to-repeat">Send to repeater</button></div>`
+    + `<div class="detail-body" role="tabpanel"><h3>Headers</h3><pre class="code-block">${esc(headerText(headers) || '—')}</pre>`
+    + `<h3>Body</h3><pre class="code-block">${esc(body || '—')}</pre></div>`;
+  d.querySelectorAll('[data-tab]').forEach((b) => {
+    b.onclick = () => { state.detailTab = b.dataset.tab; renderDetail(); };
+  });
+  $('#detail-close').onclick = () => select(null);
+  const button = $('#send-to-repeat');
   button.disabled = !path;
   button.onclick = () => {
     activate('repeater');
@@ -145,8 +210,12 @@ async function actIntercept(id, card, drop) {
 async function refresh() {
   try {
     const [h, s] = await Promise.all([api('/api/history'), api('/api/state')]);
-    state.history = h;
-    renderHistory();
+    const historyKey = JSON.stringify(h);
+    if (historyKey !== state.historyKey) { // only redraw when traffic changed: keeps focus, selection and scroll
+      state.historyKey = historyKey;
+      state.history = h;
+      renderHistory();
+    }
     $('#intercept-toggle').checked = s.intercept_enabled;
     $('#pending-count').textContent = s.paused_count;
     $('#stat-blocked').textContent = s.blocked_count;
@@ -209,5 +278,20 @@ $('#send-repeat').onclick = async () => {
     await refresh();
   } catch (e) { flash(e.message, true); }
 };
+// Keyboard: arrows move through the stream, Esc closes the detail (ignored while typing in a field).
+document.addEventListener('keydown', (e) => {
+  if ($('#view-history').classList.contains('hidden') || e.altKey || e.ctrlKey || e.metaKey) return;
+  if (e.target.closest?.('input, textarea, select, [contenteditable]')) return;
+  if (e.key === 'Escape' && state.selectedId) { select(null); return; }
+  if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+  if (!state.history.length) return;
+  e.preventDefault();
+  const i = state.history.findIndex((r) => r.id === state.selectedId);
+  const next = i < 0 ? 0 : Math.min(Math.max(i + (e.key === 'ArrowDown' ? 1 : -1), 0), state.history.length - 1);
+  select(state.history[next].id, { focus: true });
+});
+// Re-place the detail (side panel vs inline row) and recount columns whenever a layout breakpoint is crossed.
+[wideLayout, window.matchMedia('(max-width: 1000px)'), window.matchMedia('(max-width: 640px)')]
+  .forEach((mq) => mq.addEventListener('change', () => { state.detailKey = ''; renderHistory(); }));
 refresh();
 setInterval(refresh, 2500);
