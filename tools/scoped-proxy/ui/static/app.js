@@ -3,7 +3,15 @@
 // It is inserted with textContent or escaped with esc() — never as raw HTML.
 
 const $ = (s) => document.querySelector(s);
-const state = { history: [], selectedId: null, detailTab: 'request', detailKey: '', historyKey: '' };
+const state = { history: [], selectedId: null, detailTab: 'request', detailKey: '', historyKey: '', filter: loadFilter() };
+
+// Filter preference is a per-browser convenience only; storage may be unavailable.
+function loadFilter() {
+  try { return { q: '', hideAssets: localStorage.getItem('scoped-proxy.hideAssets') !== 'false' }; } catch { return { q: '', hideAssets: true }; }
+}
+function saveFilter() {
+  try { localStorage.setItem('scoped-proxy.hideAssets', String(state.filter.hideAssets)); } catch { /* ignore */ }
+}
 const TARGET = 'http://127.0.0.1:3000';
 
 // Common Juice Shop endpoints offered in the repeater path list, on top of paths actually seen in history.
@@ -70,6 +78,21 @@ const ICON_CLOSE = '<svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><pa
 const detailEl = document.getElementById('history-detail'); // moved between the side slot and the inline row
 const selectedRecord = () => state.history.find((r) => r.id === state.selectedId) || null;
 
+// Static files and the socket.io channel make up most of a page load; hidden by default so API calls stand out.
+const ASSET = /\.(js|mjs|css|map|png|jpe?g|gif|svg|webp|avif|ico|woff2?|ttf|eot|otf|json|txt|md)$/i;
+function isAsset(r) {
+  const path = (pathOf(r.url) || r.url).split('?')[0];
+  return path.startsWith('/socket.io/') || ASSET.test(path);
+}
+function visibleHistory() {
+  const q = state.filter.q.trim().toLowerCase();
+  return state.history.filter((r) => {
+    if (state.filter.hideAssets && isAsset(r)) return false;
+    if (!q) return true;
+    return `${r.method} ${pathOf(r.url) || r.url} ${r.status_code ?? ''} ${r.state}`.toLowerCase().includes(q);
+  });
+}
+
 function renderHistory() {
   const body = $('#history-body');
   const rowHadFocus = !!document.activeElement?.closest?.('#history-body tr');
@@ -77,10 +100,13 @@ function renderHistory() {
   if (state.selectedId && !selectedRecord()) state.selectedId = null; // gone after a proxy restart
   $('#detail-slot').appendChild(detailEl); // rescue it before the rows (and an inline detail row) are removed
   body.replaceChildren();
+  const rows = visibleHistory();
   $('#history-empty').classList.toggle('hidden', state.history.length > 0);
+  $('#history-filtered-empty').classList.toggle('hidden', !(state.history.length > 0 && rows.length === 0));
+  $('#history-count').textContent = state.history.length ? `${rows.length} of ${state.history.length}` : '';
   const counts = {};
-  state.history.forEach((r, index) => {
-    counts[r.state] = (counts[r.state] || 0) + 1;
+  state.history.forEach((r) => { counts[r.state] = (counts[r.state] || 0) + 1; });
+  rows.forEach((r, index) => {
     const selected = r.id === state.selectedId;
     const tr = document.createElement('tr');
     tr.dataset.id = r.id;
@@ -134,6 +160,40 @@ function select(id, { focus = false } = {}) {
   detailEl.scrollTop = 0;
 }
 
+// "Copy for finding": the request in the format the finding template expects. Browser-only headers are left out
+// so the block stays short; Host is always the pinned target.
+const NOISE_HEADER = /^(sec-|user-agent$|accept-encoding$|accept-language$|if-none-match$|if-modified-since$|connection$|keep-alive$|cache-control$|pragma$|priority$|dnt$|upgrade-insecure-requests$|referer$|host$|content-length$|proxy-)/i;
+const essentialHeaders = (r) => Object.entries(r.request_headers || {}).filter(([k]) => !NOISE_HEADER.test(k));
+const targetHost = new URL(TARGET).host;
+
+function asHttp(r) {
+  const lines = [`${r.method} ${pathOf(r.url) || '/'} HTTP/1.1`, `Host: ${targetHost}`, ...essentialHeaders(r).map(([k, v]) => `${k}: ${v}`)];
+  return lines.join('\n') + (r.request_body ? `\n\n${r.request_body}` : '');
+}
+
+function asCurl(r) {
+  const q = (v) => `'${String(v).replace(/'/g, `'\\''`)}'`;
+  const parts = ['curl -i'];
+  if (r.method !== 'GET') parts.push(`-X ${r.method}`);
+  parts.push(q(TARGET + (pathOf(r.url) || '/')));
+  essentialHeaders(r).forEach(([k, v]) => parts.push(`-H ${q(`${k}: ${v}`)}`));
+  if (r.request_body) parts.push(`--data-raw ${q(r.request_body)}`);
+  return parts.join(' \\\n  ');
+}
+
+async function copyText(text, label) {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    const ta = Object.assign(document.createElement('textarea'), { value: text });
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    ta.remove();
+  }
+  flash(`Copied as ${label}. Browser-only headers (User-Agent, sec-*, …) were left out.`);
+}
+
 function renderDetail() {
   const d = detailEl;
   const r = selectedRecord();
@@ -154,6 +214,8 @@ function renderDetail() {
     + `<div class="detail-meta">${r.status_code ? `<span class="status">${esc(r.status_code)}</span>` : ''}`
     + `<span class="state state-${stateClass(r.state)}">${esc(r.state)}</span>`
     + `<span>${esc(r.duration_ms ?? '—')} ms</span><span>${esc(r.created_at)}</span></div>`
+    + `<div class="detail-actions"><button class="button small" id="copy-http" title="Request block for a finding's Steps to reproduce">Copy as HTTP</button>`
+    + `<button class="button small" id="copy-curl">Copy as curl</button></div>`
     + `<div class="detail-toolbar"><div class="tabs" role="tablist" aria-label="Message">`
     + `<button role="tab" data-tab="request" aria-selected="${tab === 'request'}">Request</button>`
     + `<button role="tab" data-tab="response" aria-selected="${tab === 'response'}">Response</button></div>`
@@ -164,6 +226,10 @@ function renderDetail() {
     b.onclick = () => { state.detailTab = b.dataset.tab; renderDetail(); };
   });
   $('#detail-close').onclick = () => select(null);
+  $('#copy-http').disabled = !path;
+  $('#copy-curl').disabled = !path;
+  $('#copy-http').onclick = () => copyText(asHttp(r), 'HTTP');
+  $('#copy-curl').onclick = () => copyText(asCurl(r), 'curl');
   const button = $('#send-to-repeat');
   button.disabled = !path;
   button.onclick = () => {
@@ -237,6 +303,7 @@ async function refresh() {
       renderHistory();
     }
     $('#intercept-toggle').checked = s.intercept_enabled;
+    renderBanner(s);
     $('#pending-count').textContent = s.paused_count;
     $('#stat-blocked').textContent = s.blocked_count;
     $('#proxy-url').textContent = s.proxy;
@@ -279,12 +346,35 @@ function activate(view) {
 
 document.querySelectorAll('.nav-button').forEach((b) => { b.onclick = () => activate(b.dataset.view); });
 $('#refresh-button').onclick = refresh;
-$('#intercept-toggle').onchange = async (e) => {
+async function setIntercept(enabled) {
   try {
-    await api('/api/intercept/toggle', { method: 'POST', body: JSON.stringify({ enabled: e.target.checked }) });
-    flash(e.target.checked ? 'Interception enabled.' : 'Interception disabled; paused requests were released.');
-    await refresh();
-  } catch (x) { e.target.checked = !e.target.checked; flash(x.message, true); }
+    await api('/api/intercept/toggle', { method: 'POST', body: JSON.stringify({ enabled }) });
+    flash(enabled ? 'Interception enabled.' : 'Interception disabled; paused requests were released.');
+  } catch (x) { flash(x.message, true); }
+  await refresh();
+}
+
+// While interception is on, Juice Shop appears to hang until requests are forwarded: say so on every screen.
+function renderBanner(s) {
+  $('#intercept-banner').classList.toggle('hidden', !s.intercept_enabled);
+  const n = s.paused_count;
+  $('#intercept-banner-count').textContent = n
+    ? `${n} request${n === 1 ? '' : 's'} paused — Juice Shop waits until you forward or drop ${n === 1 ? 'it' : 'them'}.`
+    : 'Requests pause until you forward or drop them.';
+}
+
+$('#intercept-toggle').onchange = (e) => setIntercept(e.target.checked);
+$('#banner-open').onclick = () => activate('intercept');
+$('#banner-off').onclick = () => setIntercept(false);
+$('#history-search').oninput = (e) => { state.filter.q = e.target.value; renderHistory(); };
+$('#hide-assets').checked = state.filter.hideAssets;
+$('#hide-assets').onchange = (e) => { state.filter.hideAssets = e.target.checked; saveFilter(); renderHistory(); };
+$('#clear-filters').onclick = () => {
+  state.filter = { q: '', hideAssets: false };
+  $('#history-search').value = '';
+  $('#hide-assets').checked = false;
+  saveFilter();
+  renderHistory();
 };
 $('#send-repeat').onclick = async () => {
   try {
@@ -304,11 +394,12 @@ document.addEventListener('keydown', (e) => {
   if (e.target.closest?.('input, textarea, select, [contenteditable]')) return;
   if (e.key === 'Escape' && state.selectedId) { select(null); return; }
   if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
-  if (!state.history.length) return;
+  const rows = visibleHistory();
+  if (!rows.length) return;
   e.preventDefault();
-  const i = state.history.findIndex((r) => r.id === state.selectedId);
-  const next = i < 0 ? 0 : Math.min(Math.max(i + (e.key === 'ArrowDown' ? 1 : -1), 0), state.history.length - 1);
-  select(state.history[next].id, { focus: true });
+  const i = rows.findIndex((r) => r.id === state.selectedId);
+  const next = i < 0 ? 0 : Math.min(Math.max(i + (e.key === 'ArrowDown' ? 1 : -1), 0), rows.length - 1);
+  select(rows[next].id, { focus: true });
 });
 // Re-place the detail (side panel vs inline row) and recount columns whenever a layout breakpoint is crossed.
 [wideLayout, window.matchMedia('(max-width: 1000px)'), window.matchMedia('(max-width: 640px)')]
