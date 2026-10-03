@@ -12,7 +12,7 @@
     {
       "id": "elif",
       "name": "Elif",
-      "github": null,
+      "github": "erkisiel",
       "aliases": [],
       "role": "Juice Shop assessment",
       "owasp": ["A01", "A05", "A07"]
