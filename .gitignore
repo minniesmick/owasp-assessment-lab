@@ -15,3 +15,6 @@ dashboard/public/evidence/
 dashboard/public/codebase/
 dashboard/dev/fixture.json
 *.tsbuildinfo
+
+# Claude Desktop preview list: machine-specific (Windows launcher), kept local
+.claude/
