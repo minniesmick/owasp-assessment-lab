@@ -20,7 +20,7 @@
     {
       "id": "samed",
       "name": "Samed",
-      "github": null,
+      "github": "Skandit",
       "aliases": [],
       "role": "Juice Shop assessment",
       "owasp": ["A02", "A04", "A10"]
