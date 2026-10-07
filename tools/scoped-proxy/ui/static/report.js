@@ -139,7 +139,52 @@ TODO: a concrete fix for this case, with a link to the relevant OWASP Cheat Shee
     return { id, fileName, markdown: `${front}\n${bodyMd}` };
   }
 
-  const api = { MASK, maskJwts, maskHeaders, maskHeaderValue, maskUrl, maskRecord, fence, slugify, buildFinding, VERSION, OWASP_NAMES };
+  const MAX_EVIDENCE_BODY = 2000;
+  const TARGET_URL = /^http:\/\/127\.0\.0\.1:3000\//;
+
+  function prettyBody(text) {
+    const t = String(text == null ? '' : text);
+    const s = t.trim();
+    if (s[0] === '{' || s[0] === '[') { try { return JSON.stringify(JSON.parse(s), null, 2); } catch { /* not JSON */ }}
+    return t;
+  }
+
+  // Evidence for a screenshot or the report: the request block, then the response. Pass records through maskRecord first.
+  // ctx: { requestBlock, status, responseHeaders, responseBody }
+  function buildEvidence(ctx) {
+    const parts = ['**Request**', fence(ctx.requestBlock, 'http')];
+    if (ctx.status) {
+      let body = prettyBody(ctx.responseBody);
+      if (body.length > MAX_EVIDENCE_BODY) body = `${body.slice(0, MAX_EVIDENCE_BODY)}\n... (truncated, ${body.length} characters in total)`;
+      const head = Object.entries(ctx.responseHeaders || {}).map(([k, v]) => `${k}: ${v}`).join('\n');
+      parts.push(`**Response** (HTTP ${ctx.status})`, fence(`HTTP ${ctx.status}${head ? `\n${head}` : ''}${body ? `\n\n${body}` : ''}`, 'http'));
+    } else {
+      parts.push('**Response**: none captured.');
+    }
+    return `${parts.join('\n\n')}\n`;
+  }
+
+  // A JSON string literal is also a valid Python string literal (and a dict of strings a valid dict literal).
+  const py = (s) => JSON.stringify(String(s));
+
+  // "Copy as Python": a requests script for one captured request. Only ever text; it refuses anything but the lab target.
+  // ctx: { method, url, headers, body }
+  function buildPython(ctx) {
+    if (!TARGET_URL.test(ctx.url)) throw new Error('Only the local Juice Shop (http://127.0.0.1:3000) can be exported.');
+    const method = String(ctx.method).toUpperCase().replace(/[^A-Z]/g, '');
+    const headers = Object.entries(ctx.headers || {});
+    const masked = headers.some(([, v]) => String(v).includes(MASK)) || String(ctx.body || '').includes(MASK) || ctx.url.includes(MASK);
+    const lines = ['import requests', ''];
+    if (masked) lines.push(`# Secrets are masked as ${MASK}. Put your own values back before you run it.`);
+    lines.push(`url = ${py(ctx.url)}`);
+    lines.push(headers.length ? `headers = {\n${headers.map(([k, v]) => `    ${py(k)}: ${py(v)},`).join('\n')}\n}` : 'headers = {}');
+    if (ctx.body) lines.push(`data = ${py(ctx.body)}.encode("utf-8")`);
+    lines.push('', `response = requests.request(${py(method)}, url, headers=headers${ctx.body ? ', data=data' : ''}, timeout=10)`,
+      'print(response.status_code)', 'print(response.text)');
+    return `${lines.join('\n')}\n`;
+  }
+
+  const api = { buildEvidence, buildPython, prettyBody, MASK, maskJwts, maskHeaders, maskHeaderValue, maskUrl, maskRecord, fence, slugify, buildFinding, VERSION, OWASP_NAMES };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.Report = api;
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -3,7 +3,7 @@
 // It is inserted with textContent or escaped with esc() — never as raw HTML.
 
 const $ = (s) => document.querySelector(s);
-const state = { history: [], selectedId: null, detailTab: 'request', detailKey: '', historyKey: '', filter: loadFilter(), pretty: loadPretty(), bodyCollapsed: loadBodyCollapsed() };
+const state = { history: [], selectedId: null, detailTab: 'request', detailKey: '', historyKey: '', filter: loadFilter(), pretty: loadPretty(), bodyCollapsed: loadBodyCollapsed(), maskExport: loadMaskExport() };
 
 // Per-browser convenience preferences only; storage may be unavailable.
 function loadFilter() {
@@ -18,6 +18,13 @@ function loadPretty() {
 function setPretty(on) {
   state.pretty = on;
   try { localStorage.setItem('scoped-proxy.pretty', String(on)); } catch { /* ignore */ }
+}
+function loadMaskExport() {
+  try { return localStorage.getItem('scoped-proxy.maskExport') !== 'false'; } catch { return true; }
+}
+function setMaskExport(on) {
+  state.maskExport = on;
+  try { localStorage.setItem('scoped-proxy.maskExport', String(on)); } catch { /* ignore */ }
 }
 function loadBodyCollapsed() {
   try { return localStorage.getItem('scoped-proxy.bodyCollapsed') === 'true'; } catch { return false; }
@@ -264,7 +271,7 @@ async function copyText(text, label, note = ' Browser-only headers (User-Agent, 
 function renderDetail() {
   const d = detailEl;
   const r = selectedRecord();
-  const key = r ? JSON.stringify(r) + state.detailTab + state.pretty + state.bodyCollapsed : 'empty';
+  const key = r ? JSON.stringify(r) + state.detailTab + state.pretty + state.bodyCollapsed + state.maskExport : 'empty';
   if (key === state.detailKey) return; // unchanged: keep the reader's scroll position during live refresh
   state.detailKey = key;
   if (!r) {
@@ -291,6 +298,10 @@ function renderDetail() {
     + `<button class="button small" id="compare-response" title="Compare this response with another one">Compare</button>`
     + `<button class="button small" id="create-finding" title="Start a finding file from this request">Create finding</button>`
     + `${jwt ? '<button class="button small" id="decode-jwt" title="A JWT was found in this message">Decode JWT</button>' : ''}</div>`
+    + `<div class="detail-actions export-actions"><span class="export-label">Export</span>`
+    + `<button class="button small" id="copy-evidence" title="Request and response as Markdown for the report">Copy evidence</button>`
+    + `<button class="button small" id="copy-python" title="requests script for this request">Copy as Python</button>`
+    + `<label class="chip-toggle small"><input id="export-mask" type="checkbox"${state.maskExport ? ' checked' : ''}><span>Mask secrets</span></label></div>`
     + `<div class="detail-toolbar"><div class="tabs" role="tablist" aria-label="Message">`
     + `<button role="tab" data-tab="request" aria-selected="${tab === 'request'}">Request</button>`
     + `<button role="tab" data-tab="response" aria-selected="${tab === 'response'}">Response</button></div>`
@@ -306,6 +317,21 @@ function renderDetail() {
   $('#copy-curl').disabled = !path;
   $('#copy-http').onclick = () => copyText(asHttp(r), 'as HTTP');
   $('#copy-curl').onclick = () => copyText(asCurl(r), 'as curl');
+  $('#copy-evidence').disabled = !window.Report;
+  $('#copy-python').disabled = !path || !window.Report;
+  $('#export-mask').onchange = (e) => { setMaskExport(e.target.checked); state.detailKey = ''; renderDetail(); };
+  $('#copy-evidence').onclick = () => {
+    const m = state.maskExport ? window.Report.maskRecord(r) : r;
+    copyText(window.Report.buildEvidence({ requestBlock: asHttp(m), status: m.status_code, responseHeaders: m.response_headers, responseBody: m.response_body }),
+      'evidence', state.maskExport ? ' Tokens, cookies and JWTs are masked.' : ' Secrets are NOT masked.');
+  };
+  $('#copy-python').onclick = () => {
+    const m = state.maskExport ? window.Report.maskRecord(r) : r;
+    try {
+      copyText(window.Report.buildPython({ method: m.method, url: TARGET + (pathOf(m.url) || '/'), headers: Object.fromEntries(essentialHeaders(m)), body: m.request_body }),
+        'as Python', state.maskExport ? ' Secrets are masked; add your own values.' : ' Secrets are NOT masked.');
+    } catch (x) { flash(x.message, true); }
+  };
   $('#two-identities').disabled = !path || !window.IdentitiesView;
   $('#two-identities').onclick = () => window.IdentitiesView.open(r);
   $('#compare-response').disabled = !r.status_code || !window.DiffView;
