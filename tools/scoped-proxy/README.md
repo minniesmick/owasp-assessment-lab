@@ -34,7 +34,10 @@ Then:
    default. Severity and CVSS stay `TODO`: you set them from what you observed, then run `python scripts/validate.py`.
 8. **Response diff** (the *Compare* button in a request's details, or the tab) puts two captured responses side by side:
    status, headers and a line diff of the body. JSON is compared by structure. It sends nothing.
-9. **Scope** shows the boundary of the tool and runs a *self-check* that tries escape strings against the scope rules
+9. **Two identities** replays one request as account A and account B (and optionally with no token) through the Repeater
+   endpoint, so the path-only rules and scope gates apply. It compares the answers and gives a hint for broken access
+   control. Tokens stay in page memory only; they are never stored.
+10. **Scope** shows the boundary of the tool and runs a *self-check* that tries escape strings against the scope rules
    without opening any connection.
 
 > [!IMPORTANT]
@@ -90,6 +93,7 @@ and one test per check rule):
 ```bash
 node --test tests/decoder.test.mjs       # Node 20+
 node --test tests/checks.test.mjs
+node --test tests/identities.test.mjs    # two identities
 node --test tests/diff.test.mjs          # response diff
 node --test tests/report.test.mjs        # masking and the finding draft
 ```

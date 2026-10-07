@@ -26,6 +26,7 @@
       <div class="rail-heading rail-heading-sub">ANALYSIS</div>
       <button class="nav-button" data-view="checks"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.25"/><path d="M10.25 10.25 13.5 13.5"/><path d="m5.3 7 1.2 1.2 2.2-2.4"/></svg> Checks <b id="checks-count">0</b></button>
       <button class="nav-button" data-view="diff"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="3" width="4.5" height="10" rx=".8"/><rect x="9" y="3" width="4.5" height="10" rx=".8"/><path d="M4 6.5h1.5"/><path d="M10.5 9.5H12"/></svg> Response diff</button>
+      <button class="nav-button" data-view="identities"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="5.5" cy="5.5" r="2"/><circle cx="11" cy="6.5" r="1.7"/><path d="M2 12.5c.3-2.2 1.8-3.4 3.5-3.4s3.2 1.2 3.5 3.4"/><path d="M10 9.4c1.9-.4 3.6.7 4 3"/></svg> Two identities</button>
       <button class="nav-button" data-view="finding"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5h5.5L12.5 5.5v8h-8.5z"/><path d="M9.5 2.5v3h3"/><path d="M6 9h4.5"/><path d="M6 11.5h3"/></svg> Finding draft</button>
       <div class="rail-heading rail-heading-sub">SAFETY</div>
       <button class="nav-button" data-view="scope"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.5 13 4.5v3.5c0 3-2.2 5-5 5.8C5.2 13 3 11 3 8V4.5z"/><path d="m5.8 8 1.6 1.6 2.8-3"/></svg> Scope</button>
@@ -134,6 +135,35 @@
         <div id="diff-result" class="panel diff-result hidden"></div>
       </section>
 
+      <section id="view-identities" class="view hidden">
+        <div class="section-intro"><h2>Two identities</h2><p>Replay one request as two accounts and compare the answers, to test access control (A01). Each run sends up to three requests (A, B and, if ticked, no token) through the same path-only rules as the Repeater. Tokens stay in this page's memory only: they are never saved, and closing or reloading the page forgets them.</p></div>
+        <div class="panel form-panel">
+          <div class="id-request">
+            <label>Method<select id="id-method"><option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option><option>DELETE</option></select></label>
+            <label>Path<span class="path-field"><span class="path-prefix">http://127.0.0.1:3000</span><input id="id-path" placeholder="/rest/basket/1" spellcheck="false" autocomplete="off"></span></label>
+          </div>
+          <label>Body <span class="label-note">only for POST / PUT / PATCH</span><textarea id="id-body" rows="3" spellcheck="false"></textarea></label>
+          <div class="id-grid">
+            <div class="id-card">
+              <h3>Identity A</h3>
+              <label>Captured tokens<select id="id-pick-a"></select></label>
+              <label>Token<input id="id-token-a" type="password" spellcheck="false" autocomplete="off" placeholder="Paste a JWT or pick one above"></label>
+            </div>
+            <div class="id-card">
+              <h3>Identity B</h3>
+              <label>Captured tokens<select id="id-pick-b"></select></label>
+              <label>Token<input id="id-token-b" type="password" spellcheck="false" autocomplete="off" placeholder="Paste a JWT or pick one above"></label>
+            </div>
+          </div>
+          <div class="finding-options">
+            <label class="chip-toggle"><input id="id-cookie" type="checkbox" checked><span>Also send the token as a cookie</span></label>
+            <label class="chip-toggle"><input id="id-anon" type="checkbox"><span>Also try without a token</span></label>
+          </div>
+          <div class="intercept-actions"><button class="button" id="id-run" type="button">Send as A and B</button><button class="button ghost" id="id-forget" type="button">Forget tokens</button></div>
+        </div>
+        <div id="id-result" class="panel diff-result hidden" aria-live="polite"></div>
+      </section>
+
       <section id="view-finding" class="view hidden">
         <div class="section-intro"><h2>Finding draft</h2><p>Turns the request you selected in HTTP history into a Markdown skeleton that follows <code>findings/_TEMPLATE.md</code>. You still write the summary, impact and mitigation, and you set the severity and CVSS yourself from what you observed. Everything runs in this page; nothing is sent anywhere.</p></div>
         <div id="finding-empty" class="panel empty">No request chosen. Select a request in HTTP history and press <strong>Create finding</strong>.</div>
@@ -189,10 +219,12 @@
   <script src="/static/decoder.js"></script>
   <script src="/static/app.js"></script>
   <script src="/static/diff.js"></script>
+  <script src="/static/identities.js"></script>
   <script src="/static/report.js"></script>
   <script src="/static/checks.js"></script>
   <script src="/static/checks-view.js"></script>
   <script src="/static/diff-view.js"></script>
+  <script src="/static/identities-view.js"></script>
   <script src="/static/finding-view.js"></script>
   <script src="/static/scope.js"></script>
 </body>

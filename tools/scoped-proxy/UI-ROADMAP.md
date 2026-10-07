@@ -45,6 +45,9 @@ Written so work can continue in another session without the earlier conversation
   cookies by default; severity and CVSS are left as `TODO`. Copy or download. Tests: `node --test tests/report.test.mjs`.
 - Response diff (`ui/static/diff.js`, `diff-view.js`): *Compare* in the request details or the Response diff tab; status, headers
   (noisy ones such as `Date` do not count) and a line diff of the body with JSON compared by structure. Tests: `node --test tests/diff.test.mjs`.
+- Two identities (`ui/static/identities.js`, `identities-view.js`): replay a request as A, B and optionally no token via
+  `/api/repeater` (max 3 requests per run), diff the answers, hint for A01. Tokens only in page memory.
+  Tests: `node --test tests/identities.test.mjs`.
 
 ## To do
 Order = value for the report and the final presentation. Every item keeps the constraints above: the target and bind address stay
@@ -52,7 +55,6 @@ fixed, history stays in memory, captured data is untrusted, and anything that se
 
 | # | Feature | What it does | Notes |
 |---|---|---|---|
-| 4 | **Two identities** | Keep two tokens (memory only) and replay a request as A, B or both, then diff | For A01. Tokens never touch disk |
 | 5 | **Evidence export** | Masked request/response Markdown for screenshots and reports, plus *Copy as Python* (`requests`) | Tokens, cookies and JWTs masked by default |
 | 7 | **Match & replace** | Rules that set/remove a header or replace literal text in the body of requests passing through | Literal match only (no regex). Cannot touch `Host`, `Content-Length` or the target; applied after the scope check |
 | 8 | **Intruder-lite** | Try a list of payloads at a marked position of a repeater path | Hard caps (200 requests, minimum delay, one job at a time, Stop button). Same path rules and scope gates as the repeater. Payload lists are probes, not credential lists |

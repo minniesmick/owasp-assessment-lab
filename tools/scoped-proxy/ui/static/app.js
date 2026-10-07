@@ -287,6 +287,7 @@ function renderDetail() {
     + `<div class="detail-actions"><button class="button small" id="copy-http" title="Request block for a finding's Steps to reproduce">Copy as HTTP</button>`
     + `<button class="button small" id="copy-curl">Copy as curl</button>`
     + `<button class="button small" id="send-to-decoder" title="Open this body in the Decoder tab">Decode body</button>`
+    + `<button class="button small" id="two-identities" title="Replay this request as two accounts">Two identities</button>`
     + `<button class="button small" id="compare-response" title="Compare this response with another one">Compare</button>`
     + `<button class="button small" id="create-finding" title="Start a finding file from this request">Create finding</button>`
     + `${jwt ? '<button class="button small" id="decode-jwt" title="A JWT was found in this message">Decode JWT</button>' : ''}</div>`
@@ -305,6 +306,8 @@ function renderDetail() {
   $('#copy-curl').disabled = !path;
   $('#copy-http').onclick = () => copyText(asHttp(r), 'as HTTP');
   $('#copy-curl').onclick = () => copyText(asCurl(r), 'as curl');
+  $('#two-identities').disabled = !path || !window.IdentitiesView;
+  $('#two-identities').onclick = () => window.IdentitiesView.open(r);
   $('#compare-response').disabled = !r.status_code || !window.DiffView;
   $('#compare-response').onclick = () => window.DiffView.open(r);
   $('#create-finding').disabled = !path || !window.FindingView;
