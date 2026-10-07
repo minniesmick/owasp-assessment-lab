@@ -84,15 +84,23 @@
       <section id="view-decoder" class="view hidden">
         <div class="section-intro"><h2>Decoder</h2><p>Encode, decode and hash values you find in Juice Shop traffic: tokens, cookies, parameters, hashes. Everything runs in this page; nothing is sent anywhere. Use <strong>Use output as input</strong> to chain steps, for example Base64 decode, then URL decode.</p></div>
         <div class="panel form-panel decoder-panel">
-          <label>Input<textarea id="dec-input" rows="6" spellcheck="false" autocomplete="off" placeholder="Paste a value here, or use “Decode body” / “Decode JWT” in the request details"></textarea></label>
-          <div id="dec-suggest" class="dec-suggest" aria-live="polite"></div>
           <div class="dec-controls">
             <label class="dec-op">Operation<select id="dec-op"></select></label>
-            <button class="button small" id="dec-swap" type="button">Use output as input</button>
+            <button class="button small" id="dec-swap" type="button" title="Move the output into the input to chain another step">Use output as input</button>
             <button class="button small ghost" id="dec-clear" type="button">Clear</button>
           </div>
-          <label>Output <span class="label-note dec-status" id="dec-status" role="status" aria-live="polite"></span><textarea id="dec-output" rows="10" readonly spellcheck="false"></textarea></label>
-          <div class="dec-controls"><button class="button small" id="dec-copy" type="button">Copy output</button></div>
+          <div id="dec-suggest" class="dec-suggest" aria-live="polite"></div>
+          <div class="decoder-grid">
+            <div class="dec-field">
+              <div class="dec-head"><label for="dec-input">Input</label></div>
+              <textarea id="dec-input" spellcheck="false" autocomplete="off" placeholder="Paste a value here, or use “Decode body” / “Decode JWT” in the request details"></textarea>
+            </div>
+            <div class="dec-field">
+              <div class="dec-head"><label for="dec-output">Output</label><button class="button small" id="dec-copy" type="button">Copy output</button></div>
+              <textarea id="dec-output" readonly spellcheck="false"></textarea>
+            </div>
+          </div>
+          <p id="dec-status" class="dec-status" role="status" aria-live="polite"></p>
         </div>
       </section>
     </main>
