@@ -48,8 +48,9 @@
             <div class="history-filters">
               <label class="search-field"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.25"/><path d="M10.25 10.25 13.5 13.5"/></svg><input id="history-search" type="search" placeholder="Filter by method, path or status" spellcheck="false" autocomplete="off" aria-label="Filter requests"></label>
               <label class="chip-toggle"><input id="hide-assets" type="checkbox" checked><span>Hide assets</span></label>
+              <label class="chip-toggle"><input id="starred-only" type="checkbox"><span>Starred</span></label>
               <span id="history-count" class="history-count"></span>
-              <button class="button small ghost" id="clear-history" title="Remove captured requests from memory (paused requests stay)">Clear</button>
+              <button class="button small ghost" id="clear-history" title="Remove captured requests from memory (paused and starred requests stay)">Clear</button>
             </div>
             <div class="table-wrap"><table class="history-table"><thead><tr><th class="col-method">Method</th><th class="col-path">Path</th><th class="col-status">Status</th><th class="col-state">State</th><th class="col-time">Time</th></tr></thead><tbody id="history-body"></tbody></table></div>
             <div id="history-filtered-empty" class="empty hidden">No requests match this filter. <button class="link-button" id="clear-filters">Show all requests</button></div>

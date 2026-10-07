@@ -42,6 +42,15 @@ class ToggleBody(BaseModel):
     enabled: bool
 
 
+OWASP_TAGS = {"", *(f"A{n:02d}" for n in range(1, 11))}
+
+
+class AnnotateBody(BaseModel):
+    note: str | None = Field(default=None, max_length=2000)
+    tag: str | None = None
+    starred: bool | None = None
+
+
 class ForwardBody(BaseModel):
     headers: dict[str, str] = Field(default_factory=dict)
     body: str = ""
@@ -104,8 +113,18 @@ def create_app(settings: Settings, history: History, guard: ScopeGuard) -> FastA
 
     @app.post("/api/history/clear")
     async def clear_history() -> dict[str, int]:
-        # Paused requests keep their record so forward/drop still works; the blocked counter is never reset.
+        # Paused requests keep their record so forward/drop still works, starred ones are kept on purpose;
+        # the blocked counter is never reset.
         return {"cleared": history.clear(set(guard.paused))}
+
+    @app.post("/api/history/{record_id}/annotate")
+    async def annotate(record_id: str, body: AnnotateBody) -> dict[str, Any]:
+        if body.tag is not None and body.tag not in OWASP_TAGS:
+            raise HTTPException(400, "Unknown OWASP tag")
+        record = history.annotate(record_id, body.note, body.tag, body.starred)
+        if record is None:
+            raise HTTPException(404, "Request no longer exists")
+        return {"note": record.note, "tag": record.tag, "starred": record.starred}
 
     @app.get("/api/intercept")
     async def paused() -> list[dict[str, Any]]:

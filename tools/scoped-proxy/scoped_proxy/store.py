@@ -27,6 +27,9 @@ class Record:
     duration_ms: int | None = None
     state: str = "captured"  # captured | paused | forwarded | dropped | blocked | error
     error: str = ""
+    note: str = ""  # tester's annotations, in memory like everything else
+    tag: str = ""  # OWASP category A01..A10 or ""
+    starred: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -46,9 +49,21 @@ class History:
     def get(self, record_id: str) -> Record | None:
         return next((r for r in self._items if r.id == record_id), None)
 
+    def annotate(self, record_id: str, note: str | None, tag: str | None, starred: bool | None) -> Record | None:
+        record = self.get(record_id)
+        if record is None:
+            return None
+        if note is not None:
+            record.note = note
+        if tag is not None:
+            record.tag = tag
+        if starred is not None:
+            record.starred = starred
+        return record
+
     def clear(self, keep: set[str]) -> int:
-        """Drop captured records except `keep` (paused requests still need theirs). blocked_count is not reset."""
-        kept = [r for r in self._items if r.id in keep]
+        """Drop captured records except `keep` (paused requests still need theirs) and starred ones. blocked_count is not reset."""
+        kept = [r for r in self._items if r.id in keep or r.starred]
         removed = len(self._items) - len(kept)
         self._items.clear()
         self._items.extend(kept)

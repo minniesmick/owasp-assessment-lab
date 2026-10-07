@@ -7,7 +7,7 @@ const state = { history: [], selectedId: null, detailTab: 'request', detailKey: 
 
 // Per-browser convenience preferences only; storage may be unavailable.
 function loadFilter() {
-  try { return { q: '', hideAssets: localStorage.getItem('scoped-proxy.hideAssets') !== 'false' }; } catch { return { q: '', hideAssets: true }; }
+  try { return { q: '', starred: false, hideAssets: localStorage.getItem('scoped-proxy.hideAssets') !== 'false' }; } catch { return { q: '', starred: false, hideAssets: true }; }
 }
 function saveFilter() {
   try { localStorage.setItem('scoped-proxy.hideAssets', String(state.filter.hideAssets)); } catch { /* ignore */ }
@@ -147,6 +147,7 @@ function pathOf(url) {
 
 // Split view: on wide screens the detail panel sits beside the list; below this width it opens under the selected row.
 const wideLayout = window.matchMedia('(min-width: 1180px)');
+const ICON_STAR = '<svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2l1.8 3.7 4 .6-2.9 2.8.7 4L8 11.2 4.4 13.1l.7-4L2.2 6.3l4-.6z"/></svg>';
 const ICON_CLOSE = '<svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8"/><path d="M12 4l-8 8"/></svg>';
 
 const detailEl = document.getElementById('history-detail'); // moved between the side slot and the inline row
@@ -162,8 +163,9 @@ function visibleHistory() {
   const q = state.filter.q.trim().toLowerCase();
   return state.history.filter((r) => {
     if (state.filter.hideAssets && isAsset(r)) return false;
+    if (state.filter.starred && !r.starred) return false;
     if (!q) return true;
-    return `${r.method} ${pathOf(r.url) || r.url} ${r.status_code ?? ''} ${r.state}`.toLowerCase().includes(q);
+    return `${r.method} ${pathOf(r.url) || r.url} ${r.status_code ?? ''} ${r.state} ${r.tag || ''} ${r.note || ''}`.toLowerCase().includes(q);
   });
 }
 
@@ -187,8 +189,8 @@ function renderHistory() {
     tr.className = selected ? 'selected' : '';
     tr.setAttribute('aria-selected', String(selected));
     tr.tabIndex = selected || (!state.selectedId && index === 0) ? 0 : -1; // roving tabindex: one tab stop for the list
-    tr.innerHTML = `<td class="col-method">${esc(r.method)}${r.source === 'repeater' ? '<span class="source-tag">rep</span>' : ''}</td>`
-      + `<td class="col-path" title="${esc(r.url)}">${esc(pathOf(r.url) || r.url)}</td>`
+    tr.innerHTML = `<td class="col-method">${r.starred ? `<span class="row-star" title="Starred">${ICON_STAR}</span>` : ''}${esc(r.method)}${r.source === 'repeater' ? '<span class="source-tag">rep</span>' : ''}</td>`
+      + `<td class="col-path" title="${esc(r.url + (r.note ? `\n${r.note}` : ''))}">${r.tag ? `<span class="row-tag">${esc(r.tag)}</span>` : ''}${esc(pathOf(r.url) || r.url)}</td>`
       + `<td class="col-status">${statusChip(r.status_code)}</td>`
       + `<td class="col-state"><span class="state state-${stateClass(r.state)}">${esc(r.state)}</span></td>`
       + `<td class="col-time">${esc(r.duration_ms ?? '—')} ms</td>`;
@@ -268,10 +270,44 @@ async function copyText(text, label, note = ' Browser-only headers (User-Agent, 
   flash(`Copied ${label}.${note}`);
 }
 
+const tagOptions = (selected) => Object.entries(window.Report?.OWASP_NAMES || {})
+  .map(([code, name]) => `<option value="${code}"${code === selected ? ' selected' : ''}>${code} ${esc(name)}</option>`).join('');
+
+// Notes, OWASP tag and star: stored on the record in the proxy's memory (gone when the tool stops, like the history).
+let noteTimer;
+let pendingNote = null; // { id, el }
+async function annotate(id, patch) {
+  try {
+    const d = await api(`/api/history/${encodeURIComponent(id)}/annotate`, { method: 'POST', body: JSON.stringify(patch) });
+    const rec = state.history.find((x) => x.id === id);
+    if (rec) Object.assign(rec, d);
+    return true;
+  } catch (e) { flash(e.message, true); return false; }
+}
+async function flushNote() {
+  clearTimeout(noteTimer);
+  if (!pendingNote) return;
+  const { id, el } = pendingNote;
+  pendingNote = null;
+  await annotate(id, { note: el.value });
+  if (state.filter.q) renderHistory(); // the search also looks at notes
+}
+function wireNotes(r) {
+  const note = $('#note-text');
+  note.oninput = () => { pendingNote = { id: r.id, el: note }; clearTimeout(noteTimer); noteTimer = setTimeout(flushNote, 700); };
+  note.onblur = flushNote;
+  const change = async (patch, focusId) => {
+    await flushNote();
+    if (await annotate(r.id, patch)) { state.detailKey = ''; renderHistory(); $(focusId)?.focus({ preventScroll: true }); }
+  };
+  $('#note-tag').onchange = (e) => change({ tag: e.target.value }, '#note-tag');
+  $('#detail-star').onclick = () => change({ starred: !r.starred }, '#detail-star');
+}
+
 function renderDetail() {
   const d = detailEl;
   const r = selectedRecord();
-  const key = r ? JSON.stringify(r) + state.detailTab + state.pretty + state.bodyCollapsed + state.maskExport : 'empty';
+  const key = r ? JSON.stringify({ ...r, note: undefined }) + state.detailTab + state.pretty + state.bodyCollapsed + state.maskExport : 'empty';
   if (key === state.detailKey) return; // unchanged: keep the reader's scroll position during live refresh
   state.detailKey = key;
   if (!r) {
@@ -287,7 +323,8 @@ function renderDetail() {
   const jwt = window.Decoder ? window.Decoder.findJwt(`${headerText(headers)}\n${body || ''}`) : null;
   d.innerHTML =`<div class="detail-head"><div class="detail-title"><span class="detail-method">${esc(r.method)}</span>`
     + `<code class="detail-path" title="${esc(r.url)}">${esc(path || r.url)}</code></div>`
-    + `<button class="icon-button" id="detail-close" aria-label="Close details" title="Close (Esc)">${ICON_CLOSE}</button></div>`
+    + `<div class="head-buttons"><button class="icon-button star-button${r.starred ? ' is-starred' : ''}" id="detail-star" aria-pressed="${!!r.starred}" aria-label="Star this request" title="${r.starred ? 'Unstar' : 'Star'} (kept when you clear history)">${ICON_STAR}</button>`
+    + `<button class="icon-button" id="detail-close" aria-label="Close details" title="Close (Esc)">${ICON_CLOSE}</button></div></div>`
     + `<div class="detail-meta">${r.status_code ? statusChip(r.status_code) : ''}`
     + `<span class="state state-${stateClass(r.state)}">${esc(r.state)}</span>`
     + `<span>${esc(r.duration_ms ?? '—')} ms</span>${localTime(r.created_at)}</div>`
@@ -302,6 +339,8 @@ function renderDetail() {
     + `<button class="button small" id="copy-evidence" title="Request and response as Markdown for the report">Copy evidence</button>`
     + `<button class="button small" id="copy-python" title="requests script for this request">Copy as Python</button>`
     + `<label class="chip-toggle small"><input id="export-mask" type="checkbox"${state.maskExport ? ' checked' : ''}><span>Mask secrets</span></label></div>`
+    + `<div class="note-row"><label class="note-tag">OWASP<select id="note-tag"><option value="">None</option>${tagOptions(r.tag)}</select></label>`
+    + `<label class="note-text">Note<textarea id="note-text" rows="2" maxlength="2000" spellcheck="false" placeholder="What did you notice? Saved automatically, kept in memory only.">${esc(r.note || '')}</textarea></label></div>`
     + `<div class="detail-toolbar"><div class="tabs" role="tablist" aria-label="Message">`
     + `<button role="tab" data-tab="request" aria-selected="${tab === 'request'}">Request</button>`
     + `<button role="tab" data-tab="response" aria-selected="${tab === 'response'}">Response</button></div>`
@@ -332,6 +371,7 @@ function renderDetail() {
         'as Python', state.maskExport ? ' Secrets are masked; add your own values.' : ' Secrets are NOT masked.');
     } catch (x) { flash(x.message, true); }
   };
+  wireNotes(r);
   $('#two-identities').disabled = !path || !window.IdentitiesView;
   $('#two-identities').onclick = () => window.IdentitiesView.open(r);
   $('#compare-response').disabled = !r.status_code || !window.DiffView;
@@ -504,6 +544,7 @@ $('#intercept-toggle').onchange = (e) => setIntercept(e.target.checked);
 $('#banner-open').onclick = () => activate('intercept');
 $('#banner-off').onclick = () => setIntercept(false);
 $('#history-search').oninput = (e) => { state.filter.q = e.target.value; renderHistory(); };
+$('#starred-only').onchange = (e) => { state.filter.starred = e.target.checked; renderHistory(); };
 $('#hide-assets').checked = state.filter.hideAssets;
 $('#hide-assets').onchange = (e) => { state.filter.hideAssets = e.target.checked; saveFilter(); renderHistory(); };
 // Clear needs a second click within 3 s: history holds the evidence for findings.
@@ -524,12 +565,14 @@ $('#clear-history').onclick = async (e) => {
     state.selectedId = null;
     state.historyKey = '';
     state.detailKey = '';
-    flash(`Cleared ${d.cleared} request${d.cleared === 1 ? '' : 's'} from memory.`);
+    const kept = state.history.filter((r) => r.starred).length;
+    flash(`Cleared ${d.cleared} request${d.cleared === 1 ? '' : 's'} from memory.${kept ? ` ${kept} starred kept.` : ''}`);
     await refresh();
   } catch (x) { flash(x.message, true); }
 };
 $('#clear-filters').onclick = () => {
-  state.filter = { q: '', hideAssets: false };
+  state.filter = { q: '', starred: false, hideAssets: false };
+  $('#starred-only').checked = false;
   $('#history-search').value = '';
   $('#hide-assets').checked = false;
   saveFilter();

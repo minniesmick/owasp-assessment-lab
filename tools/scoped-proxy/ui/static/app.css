@@ -248,3 +248,17 @@ kbd{font:600 11px var(--mono);color:var(--text-2);background:var(--surface-2);bo
 .export-actions{align-items:center;padding-top:8px}
 .export-label{color:var(--dim);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-right:2px}
 .chip-toggle.small span{height:30px;padding:0 10px;font-size:11px}
+.head-buttons{display:flex;gap:2px;flex:none;margin:-5px -6px 0 0}
+.head-buttons .icon-button{margin:0}
+.star-button.is-starred{color:var(--accent)}
+.star-button.is-starred .icon,.row-star .icon{fill:currentColor}
+.star-button:hover:not(.is-starred) .icon{color:var(--accent)}
+.row-star{color:var(--accent);margin-right:6px;display:inline-block;vertical-align:-2px}
+.row-tag{display:inline-block;margin-right:8px;padding:1px 6px;border-radius:4px;background:var(--accent-soft);color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent-line);font:600 11px var(--mono)}
+.note-row{display:grid;grid-template-columns:minmax(0,170px) minmax(0,1fr);gap:10px;padding:10px 20px 0;align-items:start}
+.note-row label{display:block;color:var(--dim);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.note-row select,.note-row textarea{display:block;width:100%;margin-top:5px;background:var(--sunken);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:7px 9px;font:12px/1.45 var(--sans);letter-spacing:0;text-transform:none}
+.note-row textarea{resize:vertical;min-height:54px;max-height:220px;font-family:var(--mono);font-size:11.5px}
+.note-row select:hover,.note-row textarea:hover{border-color:var(--line-strong)}
+.note-row select:focus-visible,.note-row textarea:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+@media(max-width:640px){.note-row{grid-template-columns:1fr;padding:8px 14px 0}}

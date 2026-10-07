@@ -47,7 +47,7 @@
 
   function open(r) {
     record = r;
-    $('#finding-owasp').value = ''; // the category is the tester's call; a passive hint is not a finding
+    $('#finding-owasp').value = r.tag || ''; // only a category the tester set by hand; a passive hint is not a finding
     $('#finding-title').value = '';
     $('#finding-cwe').value = '';
     $('#finding-tester').value = stored();

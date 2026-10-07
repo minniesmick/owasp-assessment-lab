@@ -52,6 +52,9 @@ Written so work can continue in another session without the earlier conversation
   long bodies truncated) and *Copy as Python* (`requests` script) in the request details. A *Mask secrets* toggle (on by default,
   remembered) hides tokens, cookies and JWTs. The script is text only and refuses any URL except `http://127.0.0.1:3000/`.
   Tests: `node --test tests/export.test.mjs`.
+- Notes, OWASP tag and star per request (`POST /api/history/{id}/annotate`, fields on the in-memory `Record`): shown in the request details,
+  as a star and tag chip in the list, a *Starred* filter, and searchable. *Create finding* pre-selects the tag. *Clear* keeps starred
+  requests. Same CSRF rules as the other POST routes; note capped at 2000 characters, tag limited to A01-A10.
 
 ## To do
 Order = value for the report and the final presentation. Every item keeps the constraints above: the target and bind address stay
@@ -61,7 +64,6 @@ fixed, history stays in memory, captured data is untrusted, and anything that se
 |---|---|---|---|
 | 7 | **Match & replace** | Rules that set/remove a header or replace literal text in the body of requests passing through | Literal match only (no regex). Cannot touch `Host`, `Content-Length` or the target; applied after the scope check |
 | 8 | **Intruder-lite** | Try a list of payloads at a marked position of a repeater path | Hard caps (200 requests, minimum delay, one job at a time, Stop button). Same path rules and scope gates as the repeater. Payload lists are probes, not credential lists |
-| 9 | **Notes and tags** | Per-request note, OWASP tag and star | Stored in the in-memory history only |
 | 10 | **socket.io view** | Readable list of the socket.io events Juice Shop sends | Parsed in the browser from captured traffic |
 
 ## How to test without touching real traffic
