@@ -394,6 +394,7 @@ async function refresh() {
       state.historyKey = historyKey;
       state.history = h;
       renderHistory();
+      document.dispatchEvent(new Event('history-changed'));
     }
     $('#intercept-toggle').checked = s.intercept_enabled;
     renderBanner(s);
@@ -572,6 +573,6 @@ window.addEventListener('resize', () => {
   }, 150);
 });
 // Shared helpers for the extra view modules (loaded after this file).
-window.App = { state, api, esc, flash, headerText, parseHeaders, pathOf, asHttp, asCurl, statusChip, localTime, stateClass, copyText, activate, refresh, TARGET };
+window.App = { state, api, esc, flash, headerText, parseHeaders, pathOf, asHttp, asCurl, statusChip, localTime, stateClass, copyText, activate, refresh, select, TARGET };
 refresh();
 setInterval(refresh, 2500);

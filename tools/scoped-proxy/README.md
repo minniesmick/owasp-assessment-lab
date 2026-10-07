@@ -26,6 +26,11 @@ Then:
    ROT13, JWT (header and payload, never verified), MD5 / SHA-1 / SHA-256 / SHA-512. *Use output as input* chains steps
    (Base64 decode, then URL decode). In a request's details, *Decode body* and *Decode JWT* (shown when a JWT is found in
    the headers or body) open the value in the Decoder. It runs only in the browser page and sends nothing anywhere.
+6. **Checks** lists passive observations drawn from the captured traffic: missing security headers, cookie flags, CORS `*`,
+   stack traces, SQL errors, weak or leaky JWTs, hash-like fields, secrets in URLs. Each is tagged with its OWASP Top 10:2025
+   category. They are hints to verify by hand, not confirmed findings. The tab sends no requests.
+7. **Scope** shows the boundary of the tool and runs a *self-check* that tries escape strings against the scope rules
+   without opening any connection.
 
 > [!IMPORTANT]
 > Only traffic sent to **:8080** passes through the proxy. A tab opened at `http://127.0.0.1:3000` talks to Juice Shop
@@ -75,12 +80,18 @@ Hosts and the target cannot be changed. History lives in memory only and is gone
   asserts that the canary received **zero connections**. It also checks DNS-rebinding/CSRF protection, security
   headers, interceptor forward/drop and clearing the history.
 
-The Decoder's conversion logic is plain JavaScript with its own tests (known vectors for MD5, SHA, Base64, JWT …):
+The Decoder and the passive checks are plain JavaScript with their own tests (known vectors for MD5, SHA, Base64, JWT,
+and one test per check rule):
 ```bash
 node --test tests/decoder.test.mjs       # Node 20+
+node --test tests/checks.test.mjs
 ```
 
 ## Limits (what this does not claim)
+
+- A client that sends no `Accept-Encoding: gzip` gets a `502` for `GET /ftp`. Juice Shop declares `Content-Length: 11319` but
+  sends 11307 bytes, and the proxy rejects the mismatch. Browsers ask for gzip, so they are not affected.
+- The history keeps response headers as a name-to-value map, so repeated headers (several `Set-Cookie`) collapse to the last one.
 
 - The guarantees cover **this tool**. They do not stop other software on the machine from reaching other hosts.
 - Juice Shop must itself stay bound to `127.0.0.1` (the repository's `docker-compose.yml` does this).

@@ -36,6 +36,10 @@ Written so work can continue in another session without the earlier conversation
 - Decoder tab (`ui/static/decoder.js`): URL, Base64 / Base64URL, hex, HTML entities, Unicode, ROT13, JWT decode, MD5 / SHA hashes;
   chaining via *Use output as input*, "Looks like" suggestions, and *Decode body* / *Decode JWT* shortcuts in the request details.
   Browser-only; output is written to a textarea value, never as HTML. Tests: `node --test tests/decoder.test.mjs`.
+- Scope report (`ui/static/scope.js`): counters, recent blocked attempts, the layers of the boundary, and a *self-check*
+  (`POST /api/scope-selftest`, `scoped_proxy/selftest.py`) that runs the scope rules against escape strings; no connection is opened.
+- Passive checks (`ui/static/checks.js`, `checks-view.js`): 16 rules over captured traffic, mapped to OWASP Top 10:2025, with
+  severity and OWASP filters. Sends no requests. Tests: `node --test tests/checks.test.mjs`.
 
 ## To do
 Order = value for the report and the final presentation. Every item keeps the constraints above: the target and bind address stay
@@ -44,11 +48,9 @@ fixed, history stays in memory, captured data is untrusted, and anything that se
 | # | Feature | What it does | Notes |
 |---|---|---|---|
 | 1 | **Create finding** | One click from a request to a `findings/_TEMPLATE.md` skeleton: target, *Steps to reproduce* (Copy as HTTP block), evidence placeholders | UI only. Output is Markdown to copy or download; the contributor still fills the rest |
-| 2 | **Passive checks** | Observes captured traffic only: missing security headers, cookie flags, CORS `*`, stack traces and verbose errors, weak JWTs, hash-like secrets in responses. Each observation maps to an OWASP category | Sends no requests. Rules in `ui/static/checks.js`, tested with `node --test` |
 | 3 | **Response diff** | Two responses side by side with a line diff | For A01 (IDOR, access control) |
 | 4 | **Two identities** | Keep two tokens (memory only) and replay a request as A, B or both, then diff | For A01. Tokens never touch disk |
 | 5 | **Evidence export** | Masked request/response Markdown for screenshots and reports, plus *Copy as Python* (`requests`) | Tokens, cookies and JWTs masked by default |
-| 6 | **Scope report** | Counters, recent blocked attempts, the layers of the boundary, and a *self-check* that runs the scope rules against escape strings | `POST /api/scope-selftest` runs pure functions only; no connection is opened |
 | 7 | **Match & replace** | Rules that set/remove a header or replace literal text in the body of requests passing through | Literal match only (no regex). Cannot touch `Host`, `Content-Length` or the target; applied after the scope check |
 | 8 | **Intruder-lite** | Try a list of payloads at a marked position of a repeater path | Hard caps (200 requests, minimum delay, one job at a time, Stop button). Same path rules and scope gates as the repeater. Payload lists are probes, not credential lists |
 | 9 | **Notes and tags** | Per-request note, OWASP tag and star | Stored in the in-memory history only |
