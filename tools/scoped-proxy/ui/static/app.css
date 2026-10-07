@@ -209,3 +209,27 @@ kbd{font:600 11px var(--mono);color:var(--text-2);background:var(--surface-2);bo
 .finding-buttons{display:flex;gap:8px}
 .finding-out textarea{display:block;width:100%;min-height:420px;height:60vh;border:0;border-radius:0;background:var(--sunken);color:var(--text);padding:16px 20px;font:11px/1.55 var(--mono);resize:vertical}
 @media(max-width:900px){.finding-fields{grid-template-columns:minmax(0,1fr)}.finding-fields .finding-wide{grid-column:auto}}
+
+/* Response diff */
+.diff-pick-row{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:12px;align-items:end}
+.diff-pick-row select{font:11px var(--mono)}
+.diff-result{padding:20px;display:flex;flex-direction:column;gap:20px}
+.diff-summary{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;color:var(--muted);font-size:12px}
+.diff-verdict{border-radius:4px;padding:3px 8px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.diff-verdict.is-same{box-shadow:inset 0 0 0 1px var(--line-strong);color:var(--muted)}
+.diff-verdict.is-diff{background:var(--accent-soft);color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent-line)}
+.diff-block h3{margin:0 0 8px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.diff-none{margin:0;color:var(--muted);font-size:12px}
+.diff-table td{font-size:11px;overflow-wrap:anywhere;vertical-align:top}
+.diff-table .diff-changed td:nth-child(2),.diff-table .diff-only-a td:nth-child(2){background:var(--surface-2)}
+.diff-table .diff-changed td:nth-child(3),.diff-table .diff-only-b td:nth-child(3){background:var(--accent-soft);color:var(--accent)}
+.diff-more{margin-top:10px}
+.diff-more summary{cursor:pointer;color:var(--muted);font-size:12px}
+.diff-body-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.diff-body-head h3{margin:0}
+.diff-lines{background:var(--sunken);border:1px solid var(--line);border-radius:6px;max-height:520px;overflow:auto;font:11px/1.55 var(--mono)}
+.diff-line{padding:0 12px;white-space:pre-wrap;overflow-wrap:anywhere;border-left:2px solid transparent}
+.diff-add{background:var(--accent-soft);color:var(--accent);border-left-color:var(--accent)}
+.diff-del{background:var(--surface-2);color:var(--muted);border-left-color:var(--line-strong)}
+.diff-gap{color:var(--dim);font-style:italic;background:var(--surface)}
+@media(max-width:700px){.diff-pick-row{grid-template-columns:minmax(0,1fr)}}

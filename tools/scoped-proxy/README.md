@@ -32,7 +32,9 @@ Then:
 7. **Create finding** (button in a request's details) opens the **Finding draft** tab: it fills a `findings/_TEMPLATE.md`
    skeleton with the target, the request as an HTTP block and the observed response. Tokens, cookies and JWTs are masked by
    default. Severity and CVSS stay `TODO`: you set them from what you observed, then run `python scripts/validate.py`.
-8. **Scope** shows the boundary of the tool and runs a *self-check* that tries escape strings against the scope rules
+8. **Response diff** (the *Compare* button in a request's details, or the tab) puts two captured responses side by side:
+   status, headers and a line diff of the body. JSON is compared by structure. It sends nothing.
+9. **Scope** shows the boundary of the tool and runs a *self-check* that tries escape strings against the scope rules
    without opening any connection.
 
 > [!IMPORTANT]
@@ -88,6 +90,7 @@ and one test per check rule):
 ```bash
 node --test tests/decoder.test.mjs       # Node 20+
 node --test tests/checks.test.mjs
+node --test tests/diff.test.mjs          # response diff
 node --test tests/report.test.mjs        # masking and the finding draft
 ```
 
