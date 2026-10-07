@@ -287,6 +287,7 @@ function renderDetail() {
     + `<div class="detail-actions"><button class="button small" id="copy-http" title="Request block for a finding's Steps to reproduce">Copy as HTTP</button>`
     + `<button class="button small" id="copy-curl">Copy as curl</button>`
     + `<button class="button small" id="send-to-decoder" title="Open this body in the Decoder tab">Decode body</button>`
+    + `<button class="button small" id="create-finding" title="Start a finding file from this request">Create finding</button>`
     + `${jwt ? '<button class="button small" id="decode-jwt" title="A JWT was found in this message">Decode JWT</button>' : ''}</div>`
     + `<div class="detail-toolbar"><div class="tabs" role="tablist" aria-label="Message">`
     + `<button role="tab" data-tab="request" aria-selected="${tab === 'request'}">Request</button>`
@@ -303,6 +304,8 @@ function renderDetail() {
   $('#copy-curl').disabled = !path;
   $('#copy-http').onclick = () => copyText(asHttp(r), 'as HTTP');
   $('#copy-curl').onclick = () => copyText(asCurl(r), 'as curl');
+  $('#create-finding').disabled = !path || !window.FindingView;
+  $('#create-finding').onclick = () => window.FindingView.open(r);
   $('#send-to-decoder').disabled = !body;
   $('#send-to-decoder').onclick = () => window.Decoder.open(body || '');
   if (jwt) $('#decode-jwt').onclick = () => window.Decoder.open(jwt, 'jwt-dec');

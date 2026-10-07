@@ -29,7 +29,10 @@ Then:
 6. **Checks** lists passive observations drawn from the captured traffic: missing security headers, cookie flags, CORS `*`,
    stack traces, SQL errors, weak or leaky JWTs, hash-like fields, secrets in URLs. Each is tagged with its OWASP Top 10:2025
    category. They are hints to verify by hand, not confirmed findings. The tab sends no requests.
-7. **Scope** shows the boundary of the tool and runs a *self-check* that tries escape strings against the scope rules
+7. **Create finding** (button in a request's details) opens the **Finding draft** tab: it fills a `findings/_TEMPLATE.md`
+   skeleton with the target, the request as an HTTP block and the observed response. Tokens, cookies and JWTs are masked by
+   default. Severity and CVSS stay `TODO`: you set them from what you observed, then run `python scripts/validate.py`.
+8. **Scope** shows the boundary of the tool and runs a *self-check* that tries escape strings against the scope rules
    without opening any connection.
 
 > [!IMPORTANT]
@@ -85,6 +88,7 @@ and one test per check rule):
 ```bash
 node --test tests/decoder.test.mjs       # Node 20+
 node --test tests/checks.test.mjs
+node --test tests/report.test.mjs        # masking and the finding draft
 ```
 
 ## Limits (what this does not claim)

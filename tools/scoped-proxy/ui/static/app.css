@@ -196,3 +196,16 @@ kbd{font:600 11px var(--mono);color:var(--text-2);background:var(--surface-2);bo
 .sev-low{background:var(--accent-soft);color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent-line)}
 .sev-info{background:transparent;color:var(--muted);box-shadow:inset 0 0 0 1px var(--line-strong)}
 #checks-count.is-zero{background:var(--surface-2);color:var(--muted)}
+
+/* Finding draft */
+.finding-form{margin-bottom:18px}
+.finding-source{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px;color:var(--muted);font-size:12px}
+.finding-source code{color:var(--text);overflow-wrap:anywhere}
+.finding-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.finding-fields .finding-wide{grid-column:span 2}
+.finding-options{display:flex;flex-wrap:wrap;gap:14px}
+.finding-out .panel-head{gap:14px;flex-wrap:wrap}
+.finding-out h2{font-size:13px;overflow-wrap:anywhere}
+.finding-buttons{display:flex;gap:8px}
+.finding-out textarea{display:block;width:100%;min-height:420px;height:60vh;border:0;border-radius:0;background:var(--sunken);color:var(--text);padding:16px 20px;font:11px/1.55 var(--mono);resize:vertical}
+@media(max-width:900px){.finding-fields{grid-template-columns:minmax(0,1fr)}.finding-fields .finding-wide{grid-column:auto}}

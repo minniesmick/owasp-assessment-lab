@@ -40,6 +40,9 @@ Written so work can continue in another session without the earlier conversation
   (`POST /api/scope-selftest`, `scoped_proxy/selftest.py`) that runs the scope rules against escape strings; no connection is opened.
 - Passive checks (`ui/static/checks.js`, `checks-view.js`): 16 rules over captured traffic, mapped to OWASP Top 10:2025, with
   severity and OWASP filters. Sends no requests. Tests: `node --test tests/checks.test.mjs`.
+- Create finding (`ui/static/report.js`, `finding-view.js`): *Create finding* in the request details opens a Finding draft tab with
+  a `findings/_TEMPLATE.md` skeleton (same field and section order, checked against the template in a test). Masks tokens and
+  cookies by default; severity and CVSS are left as `TODO`. Copy or download. Tests: `node --test tests/report.test.mjs`.
 
 ## To do
 Order = value for the report and the final presentation. Every item keeps the constraints above: the target and bind address stay
@@ -47,7 +50,6 @@ fixed, history stays in memory, captured data is untrusted, and anything that se
 
 | # | Feature | What it does | Notes |
 |---|---|---|---|
-| 1 | **Create finding** | One click from a request to a `findings/_TEMPLATE.md` skeleton: target, *Steps to reproduce* (Copy as HTTP block), evidence placeholders | UI only. Output is Markdown to copy or download; the contributor still fills the rest |
 | 3 | **Response diff** | Two responses side by side with a line diff | For A01 (IDOR, access control) |
 | 4 | **Two identities** | Keep two tokens (memory only) and replay a request as A, B or both, then diff | For A01. Tokens never touch disk |
 | 5 | **Evidence export** | Masked request/response Markdown for screenshots and reports, plus *Copy as Python* (`requests`) | Tokens, cookies and JWTs masked by default |

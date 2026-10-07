@@ -25,6 +25,7 @@
       <button class="nav-button" data-view="decoder"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 5.5h9"/><path d="M9.5 3 12 5.5 9.5 8"/><path d="M13 10.5H4"/><path d="M6.5 8 4 10.5 6.5 13"/></svg> Decoder</button>
       <div class="rail-heading rail-heading-sub">ANALYSIS</div>
       <button class="nav-button" data-view="checks"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.25"/><path d="M10.25 10.25 13.5 13.5"/><path d="m5.3 7 1.2 1.2 2.2-2.4"/></svg> Checks <b id="checks-count">0</b></button>
+      <button class="nav-button" data-view="finding"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5h5.5L12.5 5.5v8h-8.5z"/><path d="M9.5 2.5v3h3"/><path d="M6 9h4.5"/><path d="M6 11.5h3"/></svg> Finding draft</button>
       <div class="rail-heading rail-heading-sub">SAFETY</div>
       <button class="nav-button" data-view="scope"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.5 13 4.5v3.5c0 3-2.2 5-5 5.8C5.2 13 3 11 3 8V4.5z"/><path d="m5.8 8 1.6 1.6 2.8-3"/></svg> Scope</button>
       <div class="rail-spacer"></div>
@@ -119,6 +120,33 @@
         <div id="checks-empty" class="empty">Nothing to report yet. Browse Juice Shop through the proxy (http://127.0.0.1:8080) and observations appear here.</div></div>
       </section>
 
+      <section id="view-finding" class="view hidden">
+        <div class="section-intro"><h2>Finding draft</h2><p>Turns the request you selected in HTTP history into a Markdown skeleton that follows <code>findings/_TEMPLATE.md</code>. You still write the summary, impact and mitigation, and you set the severity and CVSS yourself from what you observed. Everything runs in this page; nothing is sent anywhere.</p></div>
+        <div id="finding-empty" class="panel empty">No request chosen. Select a request in HTTP history and press <strong>Create finding</strong>.</div>
+        <div id="finding-main" class="hidden">
+          <div class="panel form-panel finding-form">
+            <div class="finding-source"><span>Request</span><code id="finding-request" class="mono"></code></div>
+            <div class="finding-fields">
+              <label>OWASP category<select id="finding-owasp"><option value="">Choose…</option></select></label>
+              <label>Number in category<input id="finding-num" type="number" min="1" max="999" value="1"></label>
+              <label>CWE<input id="finding-cwe" type="text" placeholder="CWE-89" spellcheck="false" autocomplete="off"></label>
+              <label class="finding-wide">Title (English, short)<input id="finding-title" type="text" placeholder="SQL injection in the login form" autocomplete="off" maxlength="120"></label>
+              <label>Tester<input id="finding-tester" type="text" placeholder="Name Surname" autocomplete="off"></label>
+              <label>Tools used<input id="finding-tools" type="text" value="Scoped Proxy" autocomplete="off"></label>
+            </div>
+            <div class="finding-options">
+              <label class="chip-toggle"><input id="finding-mask" type="checkbox" checked><span>Mask tokens and cookies</span></label>
+              <label class="chip-toggle"><input id="finding-response" type="checkbox" checked><span>Include the response</span></label>
+            </div>
+          </div>
+          <div class="panel finding-out">
+            <div class="panel-head"><div><h2 id="finding-filename" class="mono">—</h2><p>Save it as this file name in <code>findings/juice-shop/</code>, then run <code>python scripts/validate.py</code>.</p></div>
+              <div class="finding-buttons"><button class="button small" id="finding-copy" type="button">Copy Markdown</button><button class="button small ghost" id="finding-download" type="button">Download .md</button></div></div>
+            <textarea id="finding-output" readonly spellcheck="false" aria-label="Finding draft"></textarea>
+          </div>
+        </div>
+      </section>
+
       <section id="view-scope" class="view hidden">
         <div class="section-intro"><h2>Scope report</h2><p>The proxy can only reach the local Juice Shop. This page shows the fixed boundary, what it has refused so far, and re-checks the rules against known escape strings. The self-check runs the rules only: it opens no connection and sends no request.</p></div>
         <div class="stats-row scope-stats">
@@ -146,8 +174,10 @@
   </div>
   <script src="/static/decoder.js"></script>
   <script src="/static/app.js"></script>
+  <script src="/static/report.js"></script>
   <script src="/static/checks.js"></script>
   <script src="/static/checks-view.js"></script>
+  <script src="/static/finding-view.js"></script>
   <script src="/static/scope.js"></script>
 </body>
 </html>
