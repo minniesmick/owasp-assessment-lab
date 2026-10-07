@@ -21,6 +21,7 @@ from pydantic import BaseModel, Field
 
 from .addon import HOP_BY_HOP, ScopeGuard
 from .scope import TARGET_BASE, ScopeError, check_url, repeater_url
+from .selftest import run_selftest
 from .settings import Settings
 from .store import History, Record, clip
 
@@ -91,6 +92,11 @@ def create_app(settings: Settings, history: History, guard: ScopeGuard) -> FastA
             "proxy": f"http://{settings.bind_host}:{settings.proxy_port}",
             "target": TARGET_BASE,
         }
+
+    @app.post("/api/scope-selftest")
+    async def scope_selftest() -> dict[str, Any]:
+        # Pure functions only: runs the scope rules against escape strings, opens no connection.
+        return run_selftest()
 
     @app.get("/api/history")
     async def all_history() -> list[dict[str, Any]]:

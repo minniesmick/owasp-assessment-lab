@@ -23,6 +23,8 @@
       <button class="nav-button" data-view="intercept"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="3.5" width="2.5" height="9" rx=".6"/><rect x="9.5" y="3.5" width="2.5" height="9" rx=".6"/></svg> Interceptor <b id="pending-count">0</b></button>
       <button class="nav-button" data-view="repeater"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8a5 5 0 1 1-1.46-3.54"/><path d="M13 2.75v2.5h-2.5"/></svg> Repeater</button>
       <button class="nav-button" data-view="decoder"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 5.5h9"/><path d="M9.5 3 12 5.5 9.5 8"/><path d="M13 10.5H4"/><path d="M6.5 8 4 10.5 6.5 13"/></svg> Decoder</button>
+      <div class="rail-heading rail-heading-sub">SAFETY</div>
+      <button class="nav-button" data-view="scope"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.5 13 4.5v3.5c0 3-2.2 5-5 5.8C5.2 13 3 11 3 8V4.5z"/><path d="m5.8 8 1.6 1.6 2.8-3"/></svg> Scope</button>
       <div class="rail-spacer"></div>
       <div class="rail-note"><strong>Safety boundary</strong><p>The proxy can only reach the local Juice Shop. The destination is fixed in code; anything else is refused before a connection is opened.</p></div>
     </aside>
@@ -103,9 +105,34 @@
           <p id="dec-status" class="dec-status" role="status" aria-live="polite"></p>
         </div>
       </section>
+
+      <section id="view-scope" class="view hidden">
+        <div class="section-intro"><h2>Scope report</h2><p>The proxy can only reach the local Juice Shop. This page shows the fixed boundary, what it has refused so far, and re-checks the rules against known escape strings. The self-check runs the rules only: it opens no connection and sends no request.</p></div>
+        <div class="stats-row scope-stats">
+          <div><span>Target (fixed)</span><strong id="scope-target" class="scope-mono">—</strong></div>
+          <div><span>Blocked attempts</span><strong id="scope-blocked">0</strong></div>
+          <div><span>Self-check</span><strong id="scope-score">—</strong></div>
+          <div><span>Listening on</span><strong id="scope-bind" class="scope-mono">—</strong></div>
+        </div>
+        <div class="panel scope-panel">
+          <div class="panel-head"><div><h2>Self-check</h2><p id="scope-summary">Running…</p></div><button class="button small" id="scope-run" type="button">Run again</button></div>
+          <div id="scope-failed" class="scope-failed hidden" role="alert"></div>
+          <details class="scope-details"><summary>Show all checks</summary><div class="table-wrap"><table class="scope-table"><thead><tr><th>Group</th><th>Input</th><th>Expected</th><th>Result</th></tr></thead><tbody id="scope-checks"></tbody></table></div></details>
+        </div>
+        <div class="panel scope-panel">
+          <div class="panel-head"><div><h2>Layers</h2><p>Independent checks; an escape has to get past all of them.</p></div></div>
+          <ol id="scope-layers" class="scope-layers"></ol>
+        </div>
+        <div class="panel scope-panel">
+          <div class="panel-head"><div><h2>Recent blocked attempts</h2><p>Requests the proxy refused. Cleared with the history; the counter above is not.</p></div></div>
+          <div class="table-wrap"><table class="scope-table"><thead><tr><th>Time</th><th>Request</th><th>Reason</th></tr></thead><tbody id="scope-blocked-list"></tbody></table></div>
+          <div id="scope-blocked-empty" class="empty">Nothing was refused. Escape attempts such as an absolute URL to another host or a CONNECT tunnel would show up here.</div>
+        </div>
+      </section>
     </main>
   </div>
   <script src="/static/decoder.js"></script>
   <script src="/static/app.js"></script>
+  <script src="/static/scope.js"></script>
 </body>
 </html>

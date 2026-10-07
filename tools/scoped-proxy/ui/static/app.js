@@ -430,13 +430,19 @@ const LABELS = {
   decoder: ['Decoder', 'Encode, decode and hash values. Runs entirely in this page.'],
 };
 
+// Extra views (scope, checks, compare, …) register themselves here: { title, subtitle, onShow }.
+window.ViewMeta = window.ViewMeta || {};
+
 function activate(view) {
   document.querySelectorAll('.view').forEach((x) => x.classList.add('hidden'));
   $(`#view-${view}`).classList.remove('hidden');
   document.querySelectorAll('.nav-button').forEach((x) => x.classList.toggle('active', x.dataset.view === view));
-  $('#page-title').textContent = LABELS[view][0];
-  $('#page-subtitle').textContent = LABELS[view][1];
+  const meta = LABELS[view] || window.ViewMeta[view] || { title: view, subtitle: '' };
+  const [title, subtitle] = Array.isArray(meta) ? meta : [meta.title, meta.subtitle];
+  $('#page-title').textContent = title;
+  $('#page-subtitle').textContent = subtitle;
   if (view === 'intercept') renderIntercept().catch((e) => flash(e.message, true));
+  if (!Array.isArray(meta) && typeof meta.onShow === 'function') meta.onShow();
 }
 
 document.querySelectorAll('.nav-button').forEach((b) => { b.onclick = () => activate(b.dataset.view); });
@@ -565,5 +571,7 @@ window.addEventListener('resize', () => {
     document.querySelectorAll('.edit-body').forEach((t) => fitHeight(t, 96, 560));
   }, 150);
 });
+// Shared helpers for the extra view modules (loaded after this file).
+window.App = { state, api, esc, flash, headerText, parseHeaders, pathOf, asHttp, asCurl, statusChip, localTime, stateClass, copyText, activate, refresh, TARGET };
 refresh();
 setInterval(refresh, 2500);

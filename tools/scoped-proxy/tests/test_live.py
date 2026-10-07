@@ -229,3 +229,13 @@ def test_canary_never_contacted(tool, canary):
     # Runs last (file order): no escape attempt above may have reached the out-of-scope server.
     time.sleep(0.5)
     assert canary.hits == [], f"scope leak: canary received {canary.hits!r}"
+
+
+# ------------------------------------------------------------------ scope self-check endpoint
+
+def test_scope_selftest_endpoint(tool):
+    r = httpx.post(f"{DASH}/api/scope-selftest", headers=ORIGIN, content="{}", timeout=10)
+    body = r.json()
+    assert r.status_code == 200 and body["ok"] is True and body["passed"] == body["total"]
+    # same CSRF rules as every other POST
+    assert httpx.post(f"{DASH}/api/scope-selftest", headers={"Content-Type": "application/json"}, content="{}", timeout=10).status_code == 403
