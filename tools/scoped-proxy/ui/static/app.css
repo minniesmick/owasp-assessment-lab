@@ -262,3 +262,11 @@ kbd{font:600 11px var(--mono);color:var(--text-2);background:var(--surface-2);bo
 .note-row select:hover,.note-row textarea:hover{border-color:var(--line-strong)}
 .note-row select:focus-visible,.note-row textarea:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
 @media(max-width:640px){.note-row{grid-template-columns:1fr;padding:8px 14px 0}}
+.sio-table td{vertical-align:top}
+.sio-name{white-space:nowrap;color:var(--text)}
+.sio-dir{display:inline-block;white-space:nowrap;border-radius:4px;padding:3px 7px;font-size:11px;font-weight:700;letter-spacing:.02em}
+.sio-in{background:transparent;color:var(--muted);box-shadow:inset 0 0 0 1px var(--line-strong)}
+.sio-out{background:var(--accent-soft);color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent-line)}
+.sio-data{max-width:620px}
+.sio-more summary{cursor:pointer;color:var(--text-2);font:12px var(--mono);overflow-wrap:anywhere}
+.sio-more .code-block{margin-top:8px;max-height:260px}

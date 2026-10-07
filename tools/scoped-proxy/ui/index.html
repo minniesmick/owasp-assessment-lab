@@ -28,6 +28,7 @@
       <button class="nav-button" data-view="diff"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="3" width="4.5" height="10" rx=".8"/><rect x="9" y="3" width="4.5" height="10" rx=".8"/><path d="M4 6.5h1.5"/><path d="M10.5 9.5H12"/></svg> Response diff</button>
       <button class="nav-button" data-view="identities"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="5.5" cy="5.5" r="2"/><circle cx="11" cy="6.5" r="1.7"/><path d="M2 12.5c.3-2.2 1.8-3.4 3.5-3.4s3.2 1.2 3.5 3.4"/><path d="M10 9.4c1.9-.4 3.6.7 4 3"/></svg> Two identities</button>
       <button class="nav-button" data-view="finding"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5h5.5L12.5 5.5v8h-8.5z"/><path d="M9.5 2.5v3h3"/><path d="M6 9h4.5"/><path d="M6 11.5h3"/></svg> Finding draft</button>
+      <button class="nav-button" data-view="socketio"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 3.5h11v7h-6l-3 2.5v-2.5h-2z"/><path d="M5 6h6"/></svg> Socket.io</button>
       <div class="rail-heading rail-heading-sub">SAFETY</div>
       <button class="nav-button" data-view="scope"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.5 13 4.5v3.5c0 3-2.2 5-5 5.8C5.2 13 3 11 3 8V4.5z"/><path d="m5.8 8 1.6 1.6 2.8-3"/></svg> Scope</button>
       <div class="rail-spacer"></div>
@@ -121,6 +122,17 @@
         </div>
         <div class="panel"><div class="table-wrap"><table class="checks-table"><thead><tr><th>Severity</th><th>Observation</th><th>OWASP</th><th class="align-end">Seen</th><th>Example</th></tr></thead><tbody id="checks-body"></tbody></table></div>
         <div id="checks-empty" class="empty">Nothing to report yet. Browse Juice Shop through the proxy (http://127.0.0.1:8080) and observations appear here.</div></div>
+      </section>
+
+      <section id="view-socketio" class="view hidden">
+        <div class="section-intro"><h2>Socket.io events</h2><p>Juice Shop pushes events to the browser over socket.io, for example <code>challenge solved</code>. This list is read from the socket.io requests already captured in HTTP history. <strong>No request is sent.</strong> Only long-polling traffic is visible to the proxy: once the browser upgrades to WebSocket, its frames are not recorded.</p></div>
+        <div class="checks-bar">
+          <label class="checks-filter">Event<select id="sio-name"><option value="">All</option></select></label>
+          <label class="chip-toggle"><input id="sio-heartbeats" type="checkbox"><span>Show ping / pong</span></label>
+          <span id="sio-summary" class="history-count"></span>
+        </div>
+        <div class="panel"><div class="table-wrap"><table class="checks-table sio-table"><thead><tr><th>Time</th><th>Direction</th><th>Event</th><th>Data</th><th>Request</th></tr></thead><tbody id="sio-body"></tbody></table></div>
+        <div id="sio-empty" class="empty">No socket.io events captured yet. Browse Juice Shop through the proxy (http://127.0.0.1:8080); events appear here as they arrive.</div></div>
       </section>
 
       <section id="view-diff" class="view hidden">
@@ -220,11 +232,13 @@
   <script src="/static/decoder.js"></script>
   <script src="/static/app.js"></script>
   <script src="/static/diff.js"></script>
+  <script src="/static/socketio.js"></script>
   <script src="/static/identities.js"></script>
   <script src="/static/report.js"></script>
   <script src="/static/checks.js"></script>
   <script src="/static/checks-view.js"></script>
   <script src="/static/diff-view.js"></script>
+  <script src="/static/socketio-view.js"></script>
   <script src="/static/identities-view.js"></script>
   <script src="/static/finding-view.js"></script>
   <script src="/static/scope.js"></script>

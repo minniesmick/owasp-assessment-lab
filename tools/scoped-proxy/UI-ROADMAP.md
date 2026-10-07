@@ -55,6 +55,9 @@ Written so work can continue in another session without the earlier conversation
 - Notes, OWASP tag and star per request (`POST /api/history/{id}/annotate`, fields on the in-memory `Record`): shown in the request details,
   as a star and tag chip in the list, a *Starred* filter, and searchable. *Create finding* pre-selects the tag. *Clear* keeps starred
   requests. Same CSRF rules as the other POST routes; note capped at 2000 characters, tag limited to A01-A10.
+- socket.io view (`ui/static/socketio.js`, `socketio-view.js`): engine.io v3/v4 polling payloads in the captured history are decoded into an event
+  list (time, direction, event name, one-line summary, expandable data, link back to the request). Heartbeats hidden by default. Only long-polling
+  is visible to the proxy; WebSocket frames are not recorded, and the page says so. Tests: `node --test tests/socketio.test.mjs`.
 
 ## To do
 Order = value for the report and the final presentation. Every item keeps the constraints above: the target and bind address stay
@@ -64,7 +67,6 @@ fixed, history stays in memory, captured data is untrusted, and anything that se
 |---|---|---|---|
 | 7 | **Match & replace** | Rules that set/remove a header or replace literal text in the body of requests passing through | Literal match only (no regex). Cannot touch `Host`, `Content-Length` or the target; applied after the scope check |
 | 8 | **Intruder-lite** | Try a list of payloads at a marked position of a repeater path | Hard caps (200 requests, minimum delay, one job at a time, Stop button). Same path rules and scope gates as the repeater. Payload lists are probes, not credential lists |
-| 10 | **socket.io view** | Readable list of the socket.io events Juice Shop sends | Parsed in the browser from captured traffic |
 
 ## How to test without touching real traffic
 - Start Juice Shop (`docker compose up -d`) and the proxy (`start.bat` / `./start.sh`); open
