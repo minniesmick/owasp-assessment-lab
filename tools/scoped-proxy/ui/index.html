@@ -22,6 +22,7 @@
       <button class="nav-button active" data-view="history"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 4h10"/><path d="M3 8h10"/><path d="M3 12h6.5"/></svg> HTTP history</button>
       <button class="nav-button" data-view="intercept"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="3.5" width="2.5" height="9" rx=".6"/><rect x="9.5" y="3.5" width="2.5" height="9" rx=".6"/></svg> Interceptor <b id="pending-count">0</b></button>
       <button class="nav-button" data-view="repeater"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8a5 5 0 1 1-1.46-3.54"/><path d="M13 2.75v2.5h-2.5"/></svg> Repeater</button>
+      <button class="nav-button" data-view="decoder"><svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 5.5h9"/><path d="M9.5 3 12 5.5 9.5 8"/><path d="M13 10.5H4"/><path d="M6.5 8 4 10.5 6.5 13"/></svg> Decoder</button>
       <div class="rail-spacer"></div>
       <div class="rail-note"><strong>Safety boundary</strong><p>The proxy can only reach the local Juice Shop. The destination is fixed in code; anything else is refused before a connection is opened.</p></div>
     </aside>
@@ -79,8 +80,24 @@
           </div>
         </div>
       </section>
+
+      <section id="view-decoder" class="view hidden">
+        <div class="section-intro"><h2>Decoder</h2><p>Encode, decode and hash values you find in Juice Shop traffic: tokens, cookies, parameters, hashes. Everything runs in this page; nothing is sent anywhere. Use <strong>Use output as input</strong> to chain steps, for example Base64 decode, then URL decode.</p></div>
+        <div class="panel form-panel decoder-panel">
+          <label>Input<textarea id="dec-input" rows="6" spellcheck="false" autocomplete="off" placeholder="Paste a value here, or use “Decode body” / “Decode JWT” in the request details"></textarea></label>
+          <div id="dec-suggest" class="dec-suggest" aria-live="polite"></div>
+          <div class="dec-controls">
+            <label class="dec-op">Operation<select id="dec-op"></select></label>
+            <button class="button small" id="dec-swap" type="button">Use output as input</button>
+            <button class="button small ghost" id="dec-clear" type="button">Clear</button>
+          </div>
+          <label>Output <span class="label-note dec-status" id="dec-status" role="status" aria-live="polite"></span><textarea id="dec-output" rows="10" readonly spellcheck="false"></textarea></label>
+          <div class="dec-controls"><button class="button small" id="dec-copy" type="button">Copy output</button></div>
+        </div>
+      </section>
     </main>
   </div>
+  <script src="/static/decoder.js"></script>
   <script src="/static/app.js"></script>
 </body>
 </html>

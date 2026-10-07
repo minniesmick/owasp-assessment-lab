@@ -33,6 +33,9 @@ Written so work can continue in another session without the earlier conversation
 - Repeater response panel matches the history detail: status chip, duration, Headers / Body (Pretty / Raw, collapse), "Copy response body" / "Copy raw response".
 - Interceptor shortcuts: `F` forwards and `D` drops the focused (or first) request; "Forward all" button; `<kbd>` hint.
 - Clear history: "Clear" button (two-step confirm) backed by `POST /api/history/clear`; paused requests stay and the blocked counter is not reset.
+- Decoder tab (`ui/static/decoder.js`): URL, Base64 / Base64URL, hex, HTML entities, Unicode, ROT13, JWT decode, MD5 / SHA hashes;
+  chaining via *Use output as input*, "Looks like" suggestions, and *Decode body* / *Decode JWT* shortcuts in the request details.
+  Browser-only; output is written to a textarea value, never as HTML. Tests: `node --test tests/decoder.test.mjs`.
 
 ## To do
 Nothing open.

@@ -22,6 +22,10 @@ Then:
 3. *Intercept requests* pauses requests so you can edit headers/body and forward or drop them.
    Turning it off releases everything that is paused.
 4. *Send to repeater* re-sends a request with changes; only the **path** is editable, the host is fixed.
+5. The **Decoder** tab encodes, decodes and hashes values: URL, Base64 / Base64URL, hex, HTML entities, Unicode escapes,
+   ROT13, JWT (header and payload, never verified), MD5 / SHA-1 / SHA-256 / SHA-512. *Use output as input* chains steps
+   (Base64 decode, then URL decode). In a request's details, *Decode body* and *Decode JWT* (shown when a JWT is found in
+   the headers or body) open the value in the Decoder. It runs only in the browser page and sends nothing anywhere.
 
 > [!IMPORTANT]
 > Only traffic sent to **:8080** passes through the proxy. A tab opened at `http://127.0.0.1:3000` talks to Juice Shop
@@ -62,14 +66,19 @@ Hosts and the target cannot be changed. History lives in memory only and is gone
 .venv/bin/python -m pytest -q            # macOS / Linux
 ```
 
-57 tests (Juice Shop must be running for the integration tests):
+59 Python tests (Juice Shop must be running for the integration tests):
 - **Unit** — scope rules, repeater path validation (absolute URLs, `//`, `@`, `\`, CR/LF, non-ASCII …),
   loopback-only binding, and the socket gate called directly with out-of-scope addresses.
 - **Integration** — starts the real tool and a **canary server on an out-of-scope local port**, then tries to
   reach the canary through every path: absolute-form requests, spoofed `Host` headers, `CONNECT` tunnels,
   forward-proxy use (HTTP and HTTPS), repeater escape strings and a repeater `Host` override. The final test
   asserts that the canary received **zero connections**. It also checks DNS-rebinding/CSRF protection, security
-  headers, and interceptor forward/drop.
+  headers, interceptor forward/drop and clearing the history.
+
+The Decoder's conversion logic is plain JavaScript with its own tests (known vectors for MD5, SHA, Base64, JWT …):
+```bash
+node --test tests/decoder.test.mjs       # Node 20+
+```
 
 ## Limits (what this does not claim)
 

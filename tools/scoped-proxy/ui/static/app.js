@@ -275,14 +275,19 @@ function renderDetail() {
   const tab = state.detailTab;
   const headers = tab === 'request' ? r.request_headers : r.response_headers;
   const body = tab === 'request' ? r.request_body : (r.response_body || r.error);
-  d.innerHTML = `<div class="detail-head"><div class="detail-title"><span class="detail-method">${esc(r.method)}</span>`
+  // A JWT in the headers or body of the message being shown (Authorization, cookies, login responses). Only used by
+  // JavaScript below, never inserted as HTML.
+  const jwt = window.Decoder ? window.Decoder.findJwt(`${headerText(headers)}\n${body || ''}`) : null;
+  d.innerHTML =`<div class="detail-head"><div class="detail-title"><span class="detail-method">${esc(r.method)}</span>`
     + `<code class="detail-path" title="${esc(r.url)}">${esc(path || r.url)}</code></div>`
     + `<button class="icon-button" id="detail-close" aria-label="Close details" title="Close (Esc)">${ICON_CLOSE}</button></div>`
     + `<div class="detail-meta">${r.status_code ? statusChip(r.status_code) : ''}`
     + `<span class="state state-${stateClass(r.state)}">${esc(r.state)}</span>`
     + `<span>${esc(r.duration_ms ?? '—')} ms</span>${localTime(r.created_at)}</div>`
     + `<div class="detail-actions"><button class="button small" id="copy-http" title="Request block for a finding's Steps to reproduce">Copy as HTTP</button>`
-    + `<button class="button small" id="copy-curl">Copy as curl</button></div>`
+    + `<button class="button small" id="copy-curl">Copy as curl</button>`
+    + `<button class="button small" id="send-to-decoder" title="Open this body in the Decoder tab">Decode body</button>`
+    + `${jwt ? '<button class="button small" id="decode-jwt" title="A JWT was found in this message">Decode JWT</button>' : ''}</div>`
     + `<div class="detail-toolbar"><div class="tabs" role="tablist" aria-label="Message">`
     + `<button role="tab" data-tab="request" aria-selected="${tab === 'request'}">Request</button>`
     + `<button role="tab" data-tab="response" aria-selected="${tab === 'response'}">Response</button></div>`
@@ -298,6 +303,9 @@ function renderDetail() {
   $('#copy-curl').disabled = !path;
   $('#copy-http').onclick = () => copyText(asHttp(r), 'as HTTP');
   $('#copy-curl').onclick = () => copyText(asCurl(r), 'as curl');
+  $('#send-to-decoder').disabled = !body;
+  $('#send-to-decoder').onclick = () => window.Decoder.open(body || '');
+  if (jwt) $('#decode-jwt').onclick = () => window.Decoder.open(jwt, 'jwt-dec');
   const button = $('#send-to-repeat');
   button.disabled = !path;
   button.onclick = () => {
@@ -419,6 +427,7 @@ const LABELS = {
   history: ['HTTP history', 'Inspect requests and responses captured through the local proxy.'],
   intercept: ['Interceptor', 'Paused requests waiting for a deliberate decision.'],
   repeater: ['Repeater', 'Send a modified request to the local Juice Shop.'],
+  decoder: ['Decoder', 'Encode, decode and hash values. Runs entirely in this page.'],
 };
 
 function activate(view) {
